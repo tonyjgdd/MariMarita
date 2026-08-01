@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="welcome_quotes">
+        <item>Cada viaje comienza con un primer paso ️</item>
+        <item>El mejor destino siempre será contigo.</item>
+        <item>Un departamento más, un recuerdo más.</item>
+        <item>Nuestro mapa se llena de historias.</item>
+        <item>Viajar contigo hace que cualquier lugar sea especial.</item>
+        <item>La aventura continúa...</item>
+    </string-array>
+
+</resources>

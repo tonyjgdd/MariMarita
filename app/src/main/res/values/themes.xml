@@ -1,0 +1,11 @@
+<resources>
+
+    <!-- Tema del Splash -->
+    <style name="Theme.TMarita.Splash" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">#11162E</item>
+    </style>
+
+    <!-- Tema principal -->
+    <style name="Theme.TMarita" parent="Theme.Material3.DayNight.NoActionBar"/>
+
+</resources>
