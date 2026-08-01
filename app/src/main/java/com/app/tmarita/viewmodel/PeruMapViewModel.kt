@@ -27,26 +27,35 @@ class PeruMapViewModel @Inject constructor(
                 val visitableRegions = snapshot.regions.filter {
                     it.id !in PeruRegionsAssetSource.NON_VISITABLE_IDS
                 }
+                // Lima/Callao/Lima Metropolitana están SIEMPRE visitados, sin importar la BD.
+                val visitedFromDb = snapshot.visited.map { it.regionId }.toSet()
+                val effectiveVisited = visitedFromDb + PeruRegionsAssetSource.LIMA_GROUP_IDS
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     viewportWidth = snapshot.viewportWidth,
                     viewportHeight = snapshot.viewportHeight,
                     regions = visitableRegions,
-                    visitedIds = snapshot.visited.map { it.regionId }.toSet()
+                    visitedIds = effectiveVisited
                 )
             }
         }
     }
 
+    /** Tocar un departamento en el mapa: solo lo selecciona (muestra la tarjeta de info). */
     fun onRegionTapped(region: PeruRegion) {
-        viewModelScope.launch {
-            if (region.id in _uiState.value.visitedIds) {
-                repository.unmark(region.id)
-            } else {
-                repository.markVisited(region.id)
-            }
-        }
         _uiState.value = _uiState.value.copy(selectedRegion = region)
+    }
+
+    /**
+     * El switch de la tarjeta de info: marca o desmarca como visitado.
+     * Ignora el intento si es una de las regiones del grupo Lima (siempre visitado, fijo).
+     */
+    fun setVisited(regionId: String, visited: Boolean) {
+        if (regionId in PeruRegionsAssetSource.LIMA_GROUP_IDS) return
+        viewModelScope.launch {
+            if (visited) repository.markVisited(regionId) else repository.unmark(regionId)
+        }
     }
 
     fun clearSelection() {

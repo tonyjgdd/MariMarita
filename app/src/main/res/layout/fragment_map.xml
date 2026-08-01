@@ -4,92 +4,163 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F8FC">
+    android:background="@color/cream">
 
     <!-- Título -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tony 🧡 Mari "
-        android:textSize="28sp"
+        android:text="Tony 🧡 Mari"
+        android:fontFamily="serif"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="#11162E"
-        android:layout_marginTop="24dp"
+        android:textColor="@color/ink"
         android:layout_marginStart="20dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Subtítulo -->
+    <!-- Frase aleatoria -->
     <TextView
         android:id="@+id/tvSubtitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/subtitle"
-        android:textSize="15sp"
-        android:textColor="#666666"
-        android:layout_marginTop="4dp"
         android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="2dp"
+        android:text="@string/subtitle"
+        android:textSize="13sp"
+        android:textColor="@color/ink_soft"
+        android:maxLines="1"
+        android:ellipsize="end"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Mapa -->
+    <!-- Mapa: ocupa TODO el espacio restante, las tarjetas flotan encima -->
     <com.app.tmarita.view.PeruMapView
         android:id="@+id/peruMapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
-        app:layout_constraintBottom_toTopOf="@id/cardProgress"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Tarjeta inferior -->
+    <!-- Barra de progreso: delgada, flotando sobre el borde inferior del mapa -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardProgress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="6dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="10dp"
+        app:cardBackgroundColor="@color/card"
+        app:strokeColor="@color/card_stroke"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="18dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nuestro progreso"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="#11162E"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
 
             <TextView
                 android:id="@+id/progressText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0 de 25 departamentos visitados"
-                android:textSize="15sp"
-                android:textColor="#555555"
-                android:layout_marginTop="6dp"/>
+                android:layout_weight="1"
+                android:text="0 de 24"
+                android:textColor="@color/ink"
+                android:textSize="13sp"
+                android:textStyle="bold"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:max="25"
+                android:layout_width="0dp"
+                android:layout_height="10dp"
+                android:layout_weight="2"
+                android:layout_marginStart="12dp"
+                android:max="24"
                 android:progress="0"
-                android:layout_marginTop="12dp"/>
+                android:progressTint="@color/green"
+                android:progressBackgroundTint="@color/accent_track"/>
 
         </LinearLayout>
 
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Tarjeta flotante: aparece al tocar un departamento en el mapa, encima de todo -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/regionInfoCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="14dp"
+        app:cardBackgroundColor="@color/card"
+        app:strokeColor="@color/card_stroke"
+        app:strokeWidth="1dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cardProgress">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/regionNameText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif"
+                    android:text="Cusco"
+                    android:textColor="@color/ink"
+                    android:textSize="17sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/regionStatusText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="Aún no visitado"
+                    android:textColor="@color/ink_soft"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/visitedSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:thumbTint="@color/switch_thumb_selector"
+                app:trackTint="@color/switch_track_selector"/>
+
+        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

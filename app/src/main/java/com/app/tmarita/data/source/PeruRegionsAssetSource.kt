@@ -2,11 +2,10 @@ package com.app.tmarita.data.source
 
 import android.content.Context
 import com.app.tmarita.model.PeruRegion
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
-import dagger.hilt.android.qualifiers.ApplicationContext
-
 
 data class PeruMapGeometry(
     val viewportWidth: Float,
@@ -48,5 +47,11 @@ class PeruRegionsAssetSource @Inject constructor(
     companion object {
         // Ids que no cuentan como "departamento visitable" (lago, entidades especiales).
         val NON_VISITABLE_IDS = setOf("PE-LKT")
+
+        // Lima (departamento) + El Callao + Municipalidad Metropolitana de Lima
+        // se tratan como UN SOLO "departamento" fijo: siempre visitado, no se puede desmarcar.
+        // Se siguen dibujando como 3 formas distintas en el mapa, pero cuentan como 1 en los totales.
+        val LIMA_GROUP_IDS = setOf("PE-LIM", "PE-CAL", "PE-LMA")
+        const val LIMA_GROUP_LABEL = "Lima"
     }
 }
