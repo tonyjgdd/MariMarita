@@ -7,17 +7,16 @@
     android:background="@color/cream">
 
     <!-- Título -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+    <!-- Logo compacto, esquina superior izquierda -->
+    <ImageView
+        android:id="@+id/ivHeaderLogo"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:text="Tony 🧡 Mari"
-        android:fontFamily="serif"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/ink"
         android:layout_marginStart="20dp"
         android:layout_marginTop="16dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/titulo3"
+        android:contentDescription="@string/app_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -28,13 +27,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         android:text="@string/subtitle"
-        android:textSize="13sp"
+        android:textSize="12sp"
         android:textColor="@color/ink_soft"
         android:maxLines="1"
         android:ellipsize="end"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintTop_toBottomOf="@id/ivHeaderLogo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
