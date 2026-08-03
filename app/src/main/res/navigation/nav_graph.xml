@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/peruMapFragment">
+
+    <fragment
+        android:id="@+id/peruMapFragment"
+        android:name="com.app.tmarita.ui.map.PeruMapFragment"
+        android:label="Mapa">
+        <action
+            android:id="@+id/action_map_to_regionDetail"
+            app:destination="@id/regionDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/regionDetailFragment"
+        android:name="com.app.tmarita.ui.detail.RegionDetailFragment"
+        android:label="Detalle">
+        <argument android:name="regionId" app:argType="string" />
+        <argument android:name="regionTitle" app:argType="string" />
+    </fragment>
+
+</navigation>

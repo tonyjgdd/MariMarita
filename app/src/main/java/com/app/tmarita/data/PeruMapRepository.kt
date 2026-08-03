@@ -12,9 +12,21 @@ data class PeruMapSnapshot(
 )
 
 interface PeruMapRepository {
-    /** Emite geometría + estado de visita cada vez que algo cambia en la BD. */
     fun observeMap(): Flow<PeruMapSnapshot>
+
+    /** Para la pantalla de detalle: todo lo guardado de un departamento (o null si nunca se guardó nada). */
+    fun observeVisit(regionId: String): Flow<VisitedPlace?>
 
     suspend fun markVisited(regionId: String, note: String? = null, photoUri: String? = null)
     suspend fun unmark(regionId: String)
+
+    /** Guarda el formulario completo del detalle de un departamento. */
+    suspend fun saveVisitDetails(
+        regionId: String,
+        visited: Boolean,
+        place: String?,
+        visitDateMillis: Long?,
+        driveLink: String?,
+        note: String?
+    )
 }

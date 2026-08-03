@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.app.tmarita.R
 import com.app.tmarita.databinding.FragmentMapBinding
 import com.app.tmarita.viewmodel.PeruMapViewModel
@@ -61,10 +62,13 @@ class PeruMapFragment : Fragment() {
             viewModel.clearSelection()
         }
 
-        binding.visitedSwitch.setOnCheckedChangeListener { switchView, isChecked ->
-            if (!switchView.isPressed) return@setOnCheckedChangeListener // ignora cambios programáticos
-            val region = viewModel.uiState.value.selectedRegion ?: return@setOnCheckedChangeListener
-            viewModel.setVisited(region.id, isChecked)
+        binding.btnOpenRegion.setOnClickListener {
+            val region = viewModel.uiState.value.selectedRegion ?: return@setOnClickListener
+            val state = viewModel.uiState.value
+            val displayTitle = if (state.isLimaGroup(region.id)) "Lima" else region.title
+            findNavController().navigate(
+                PeruMapFragmentDirections.actionMapToRegionDetail(region.id, displayTitle)
+            )
         }
 
         observeUiState()
@@ -149,23 +153,17 @@ class PeruMapFragment : Fragment() {
             binding.regionInfoCard.visibility = View.GONE
             return
         }
-
         binding.regionInfoCard.visibility = View.VISIBLE
 
         val isLima = state.isLimaGroup(region.id)
         binding.regionNameText.text = if (isLima) "Lima" else region.title
-
-        if (isLima) {
-            binding.regionStatusText.text = "Siempre visitado 💛"
-            binding.visitedSwitch.isEnabled = false
-            binding.visitedSwitch.isChecked = true
-        } else {
-            val visitado = region.id in state.visitedIds
-            binding.regionStatusText.text = if (visitado) "Visitado" else "Aún no visitado"
-            binding.visitedSwitch.isEnabled = true
-            binding.visitedSwitch.isChecked = visitado
+        binding.regionStatusText.text = when {
+            isLima -> "Siempre visitado 💛"
+            region.id in state.visitedIds -> "Visitado"
+            else -> "Aún no visitado"
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

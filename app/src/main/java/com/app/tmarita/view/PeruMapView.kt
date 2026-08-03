@@ -1,17 +1,22 @@
 package com.app.tmarita.view
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.LinearGradient
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
+import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import androidx.core.graphics.PathParser
 import com.app.tmarita.model.PeruRegion
 
@@ -34,8 +39,6 @@ class PeruMapView @JvmOverloads constructor(
     private var viewportWidth = 542.767f
     private var viewportHeight = 792f
 
-    // baseMatrix: ajusta el viewport al tamaño de la view (fit-center).
-    // userMatrix: zoom/pan del usuario, en espacio de pantalla, ENCIMA del base.
     private val baseMatrix = Matrix()
     private val userMatrix = Matrix()
     private val totalMatrix = Matrix()
@@ -46,43 +49,56 @@ class PeruMapView @JvmOverloads constructor(
     private val minZoom = 1f
     private val maxZoom = 5f
 
-    private val fillPaintVisited = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    // ---- Colores base ----
+    private val colorVisitedTop = Color.parseColor("#A9D3A5")   // verde salvia claro
+    private val colorVisitedBottom = Color.parseColor("#7FAF7A") // verde salvia oscuro
+    private val colorPendingTop = Color.parseColor("#E3A9A0")    // terracota claro
+    private val colorPendingBottom = Color.parseColor("#C77E72") // terracota oscuro
+
+    private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.parseColor("#8FBC8F") // verde salvia suave — ya visitado
-    }
-    private val fillPaintPending = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
-        color = Color.parseColor("#D98880") // terracota suave — aún no visitado
     }
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = Color.parseColor("#2B3A3A") // ink
+        color = Color.parseColor("#2B3A3A")
         strokeWidth = 1f
     }
-    private val selectedStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+
+    // Halo de selección: varias pasadas con distinto grosor/alpha = efecto glow
+    private val selectedGlowColor = Color.parseColor("#B08D57") // gold
+    private val selectedGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = Color.parseColor("#B08D57") // gold
+    }
+    private val selectedCorePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        color = selectedGlowColor
         strokeWidth = 3f
     }
 
-    // Etiqueta: texto con sombra suave (en vez de borde duro), se lee bien sobre cualquier color.
     private val labelFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.parseColor("#2B2420") // ink
+        color = Color.parseColor("#2B2420")
         textAlign = Paint.Align.CENTER
-        // Cambia la tipografía aquí. Opciones rápidas:
-        //   "sans-serif-medium"  -> limpia, moderna (la que dejé activa)
-        //   "sans-serif-black"   -> más gruesa/bold
-        //   Typeface.SERIF       -> elegante, como el título de la app
         typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
         setShadowLayer(4f, 0f, 1f, Color.parseColor("#80FFFFFF"))
     }
-    private val labelTextSizePx = 34f // tamaño fijo en pantalla, no escala con el zoom
-    private val labelPaddingPx = 16f  // margen mínimo dentro del departamento para mostrar el nombre
+    private val labelTextSizePx = 34f
+    private val labelPaddingPx = 16f
+
+    // ---- Progreso de animación por región: 0f = pendiente, 1f = visitado ----
+    // Se anima suavemente cada vez que un id entra/sale de visitedIds, en vez de saltar de color.
+    private val visitProgress = HashMap<String, Float>()
+    private val activeAnimators = HashMap<String, ValueAnimator>()
+    private val argbEvaluator = ArgbEvaluator()
 
     var visitedIds: Set<String> = emptySet()
         set(value) {
+            val old = field
             field = value
+            if (drawableRegions.isNotEmpty()) {
+                val changed = (old - value) + (value - old) // ids cuyo estado cambió
+                changed.forEach { id -> animateVisitChange(id, id in value) }
+            }
             invalidate()
         }
 
@@ -95,6 +111,22 @@ class PeruMapView @JvmOverloads constructor(
     var onRegionClick: ((PeruRegion) -> Unit)? = null
     var onEmptyAreaClick: (() -> Unit)? = null
 
+    private fun animateVisitChange(regionId: String, toVisited: Boolean) {
+        activeAnimators[regionId]?.cancel()
+        val start = visitProgress[regionId] ?: (if (toVisited) 0f else 1f)
+        val end = if (toVisited) 1f else 0f
+        val animator = ValueAnimator.ofFloat(start, end).apply {
+            duration = 420
+            interpolator = DecelerateInterpolator()
+            addUpdateListener {
+                visitProgress[regionId] = it.animatedValue as Float
+                invalidate()
+            }
+            start()
+        }
+        activeAnimators[regionId] = animator
+    }
+
     fun setRegions(viewportW: Float, viewportH: Float, regions: List<PeruRegion>) {
         if (drawableRegions.size == regions.size &&
             drawableRegions.map { it.region.id } == regions.map { it.id }
@@ -105,6 +137,8 @@ class PeruMapView @JvmOverloads constructor(
         drawableRegions = regions.map { region ->
             val path = PathParser.createPathFromPathData(region.pathData)
             val bounds = RectF().also { path.computeBounds(it, true) }
+            // Estado inicial de progreso: sin animación, ya sea 0 o 1
+            visitProgress.putIfAbsent(region.id, if (region.id in visitedIds) 1f else 0f)
             DrawableRegion(region, path, bounds)
         }
         updateBaseMatrix(width, height)
@@ -112,7 +146,6 @@ class PeruMapView @JvmOverloads constructor(
         invalidate()
     }
 
-    /** Vuelve a mostrar el mapa completo, sin zoom. */
     fun resetZoom() {
         userMatrix.reset()
         zoom = 1f
@@ -142,13 +175,10 @@ class PeruMapView @JvmOverloads constructor(
         totalMatrix.invert(inverseTotalMatrix)
     }
 
-    /** Escala uniforme actual (viewport -> pantalla), para saber cuántos px mide cada departamento. */
     private fun currentScale(): Float {
         totalMatrix.getValues(matrixValues)
         return matrixValues[Matrix.MSCALE_X]
     }
-
-    // ---- Gestos: pellizco para zoom, arrastre para desplazar ----
 
     private val scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
@@ -209,24 +239,51 @@ class PeruMapView @JvmOverloads constructor(
 
         canvas.save()
         canvas.concat(totalMatrix)
+
         drawableRegions.forEach { dr ->
-            val fill = if (dr.region.id in visitedIds) fillPaintVisited else fillPaintPending
-            canvas.drawPath(dr.path, fill)
+            val progress = visitProgress[dr.region.id] ?: (if (dr.region.id in visitedIds) 1f else 0f)
+
+            // Interpola color top/bottom según progreso (pendiente <-> visitado)
+            val top = argbEvaluator.evaluate(progress, colorPendingTop, colorVisitedTop) as Int
+            val bottom = argbEvaluator.evaluate(progress, colorPendingBottom, colorVisitedBottom) as Int
+
+            // Gradiente vertical propio de cada región (da volumen, no se ve "plano")
+            fillPaint.shader = LinearGradient(
+                dr.bounds.left, dr.bounds.top, dr.bounds.left, dr.bounds.bottom,
+                top, bottom, Shader.TileMode.CLAMP
+            )
+
+            // Sombra suave bajo las regiones ya visitadas: sensación de "relieve"
+            fillPaint.setShadowLayer(4f * progress, 0f, 2f * progress, Color.parseColor("#33000000"))
+
+            canvas.drawPath(dr.path, fillPaint)
             canvas.drawPath(dr.path, strokePaint)
+
             if (dr.region.id == selectedRegionId) {
-                canvas.drawPath(dr.path, selectedStrokePaint)
+                drawSelectionGlow(canvas, dr.path)
             }
         }
+
         canvas.restore()
 
         drawLabels(canvas)
     }
 
-    /**
-     * Dibuja el nombre de cada departamento en espacio de pantalla (fuera de la matriz de zoom,
-     * para que el texto no se deforme ni se agrande con el pellizco) y SOLO si, al tamaño actual
-     * de zoom, el departamento en pantalla es más grande que el propio texto + margen.
-     */
+    /** Halo de selección: 3 pasadas de stroke, de más ancha/transparente a más fina/opaca. */
+    private fun drawSelectionGlow(canvas: Canvas, path: Path) {
+        val steps = listOf(
+            10f to 40,   // ancho, muy transparente (el "resplandor")
+            6f to 90,
+            3f to 255    // núcleo, opaco
+        )
+        steps.forEach { (width, alpha) ->
+            selectedGlowPaint.strokeWidth = width
+            selectedGlowPaint.color = selectedGlowColor
+            selectedGlowPaint.alpha = alpha
+            canvas.drawPath(path, selectedGlowPaint)
+        }
+    }
+
     private fun drawLabels(canvas: Canvas) {
         val scale = currentScale()
         labelFillPaint.textSize = labelTextSizePx
