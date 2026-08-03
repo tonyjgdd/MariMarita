@@ -23,6 +23,7 @@ class SplashActivity : AppCompatActivity() {
 
         binding.ivTitle.alpha = 0f
         binding.tvQuote.alpha = 0f
+        binding.tvQuote.translationY = 10f
 
         animateCollage()
 
@@ -34,8 +35,9 @@ class SplashActivity : AppCompatActivity() {
 
         binding.tvQuote.animate()
             .alpha(1f)
+            .translationY(0f)
             .setDuration(600)
-            .setStartDelay(1300)
+            .setStartDelay(700)
             .start()
 
         Handler(Looper.getMainLooper()).postDelayed({
@@ -46,26 +48,23 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun animateCollage() {
-        // Slots = las posiciones fijas del layout (tamaño/lugar no cambian)
         val slots = listOf(
-            binding.foto1, binding.foto2, binding.foto3, binding.foto4,
-            binding.foto5, binding.foto6, binding.foto7, binding.foto8
+            binding.foto1, binding.foto2, binding.foto3, binding.foto4, binding.foto5,
+            binding.foto6, binding.foto7, binding.foto8, binding.foto9
         )
 
-        // 1. Reasignar QUÉ foto va en cada slot, al azar en cada apertura
         val drawablesRandom = listOf(
-            R.drawable.foto1, R.drawable.foto2, R.drawable.foto3, R.drawable.foto4,
-            R.drawable.foto5, R.drawable.foto6, R.drawable.foto7, R.drawable.foto8
+            R.drawable.foto1, R.drawable.foto2, R.drawable.foto3, R.drawable.foto4, R.drawable.foto5,
+            R.drawable.foto6, R.drawable.foto7, R.drawable.foto8, R.drawable.foto9
         ).shuffled()
 
         slots.forEachIndexed { i, iv -> iv.setImageResource(drawablesRandom[i]) }
 
-        // 2. Animar cada slot entrando desde un borde aleatorio
         val screenW = resources.displayMetrics.widthPixels.toFloat()
         val screenH = resources.displayMetrics.heightPixels.toFloat()
 
         slots.shuffled().forEachIndexed { index, foto ->
-            val direccion = (0..3).random() // 0=izq 1=der 2=arriba 3=abajo
+            val direccion = (0..3).random()
             val offsetX = when (direccion) { 0 -> -screenW * 0.4f; 1 -> screenW * 0.4f; else -> 0f }
             val offsetY = when (direccion) { 2 -> -screenH * 0.3f; 3 -> screenH * 0.3f; else -> 0f }
             val rotacion = listOf(-14f, -9f, 9f, 14f).random()
