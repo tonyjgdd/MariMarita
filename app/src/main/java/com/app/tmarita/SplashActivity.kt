@@ -2,9 +2,10 @@ package com.app.tmarita
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat // <-- Asegúrate de importar esto
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.app.tmarita.databinding.ActivitySplashBinding
 import kotlinx.coroutines.delay
@@ -21,13 +22,12 @@ class SplashActivity : AppCompatActivity() {
     )
 
     private val intervaloCambioMs = 1100L
-    private val duracionSplashMs = 4200L
+    private val duracionSplashMs = 4800L
     private val fadeDurationMs = 500L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // IMPORTANTE: Hace que la app ocupe toda la pantalla incluyendo la barra superior
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         binding = ActivitySplashBinding.inflate(layoutInflater)
@@ -35,7 +35,7 @@ class SplashActivity : AppCompatActivity() {
 
         binding.tvSubtitle.text = resources.getStringArray(R.array.frases_splash).random()
 
-        iniciarCicloDeFotos()
+        ejecutarAnimacionEntrada()
 
         lifecycleScope.launch {
             delay(duracionSplashMs)
@@ -45,11 +45,71 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
+    private fun ejecutarAnimacionEntrada() {
+        // Estado inicial
+        binding.ivPanda.alpha = 0f
+        binding.ivPanda.scaleX = 0.7f
+        binding.ivPanda.scaleY = 0.7f
+
+        binding.tvTitle.alpha = 0f
+
+        binding.progressBar.translationY = 50f
+        binding.tvLoading.translationY = 50f
+
+        // 1. Logo
+        binding.ivPanda.animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(700)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        // 2. Título
+        binding.tvTitle.animate()
+            .alpha(1f)
+            .setStartDelay(300)
+            .setDuration(600)
+            .start()
+
+        // 3. PASO CLAVE: El degradado aparece PRIMERO (a los 450 ms)
+        binding.vScrim.animate()
+            .alpha(1f)
+            .setStartDelay(450)
+            .setDuration(500)
+            .start()
+
+        binding.ivQuote.animate().alpha(1f).setStartDelay(700).setDuration(600).start()
+        binding.tvSubtitles.animate().alpha(1f).setStartDelay(700).setDuration(600).start()
+
+        // 4. Las fotos inician DESPUÉS de que el degradado ya empezó a mostrarse (a los 750 ms)
+        lifecycleScope.launch {
+            delay(750)
+            iniciarCicloDeFotos()
+        }
+
+        // 5. Cargando
+        binding.progressBar.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(900)
+            .setDuration(500)
+            .start()
+
+        binding.tvLoading.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(900)
+            .setDuration(500)
+            .start()
+    }
+
     private fun iniciarCicloDeFotos() {
         val orden = fotos.shuffled().toMutableList()
         var indice = 0
 
         binding.ivPhotoA.setImageResource(orden[indice])
+        binding.ivPhotoA.animate().alpha(1f).setDuration(600).start()
 
         lifecycleScope.launch {
             var mostrandoA = true

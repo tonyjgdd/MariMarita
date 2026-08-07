@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/splash_pink">
 
-    <!-- Guideline: las fotos ocupan 2/3 de pantalla (0.667), el panel sólido el 1/3 final -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidePhotoEnd"
         android:layout_width="wrap_content"
@@ -14,11 +13,12 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.60"/>
 
-    <!-- Foto de fondo, ocupa 2/3 superiores -->
+    <!-- Fotos ocultas inicialmente (alpha="0") -->
     <ImageView
         android:id="@+id/ivPhotoA"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:alpha="0"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/guidePhotoEnd"
@@ -36,20 +36,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Degradado: funde el borde inferior de la foto hacia el rosa sólido, justo antes del guide -->
+    <!-- Degradado (con ID para animarlo y alpha="0") -->
     <View
+        android:id="@+id/vScrim"
         android:layout_width="0dp"
         android:layout_height="170dp"
+        android:alpha="0"
         android:background="@drawable/scrim_splash"
         app:layout_constraintBottom_toBottomOf="@id/guidePhotoEnd"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!--
-        Panda superpuesto al borde del degradado: mitad sobre la foto, mitad sobre
-        el rosa sólido. Se logra centrando su top en el guide y subiéndolo con
-        translationY negativo (mitad de su alto, aprox.).
-    -->
+    <!-- Logo Panda -->
     <ImageView
         android:id="@+id/ivPanda"
         android:layout_width="180dp"
@@ -61,7 +59,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Título pegado justo debajo del panda -->
+    <!-- Título -->
     <ImageView
         android:id="@+id/tvTitle"
         android:layout_width="220dp"
@@ -73,13 +71,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Subtítulo pegado justo debajo del título -->
-    <!-- Comilla -->
+    <!-- Comilla (alpha="0") -->
     <ImageView
         android:id="@+id/ivQuote"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginTop="20dp"
+        android:alpha="0"
         android:src="@drawable/comilla"
         android:scaleY="-1"
         android:scaleX="-1"
@@ -87,20 +85,19 @@
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="@id/tvSubtitles"/>
 
-    <!-- Subtítulo -->
-    <!-- Contenedor del subtítulo + corazón -->
+    <!-- Subtítulo + Corazón (alpha="0") -->
     <LinearLayout
         android:id="@+id/tvSubtitles"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
+        android:alpha="0"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Subtítulo -->
         <TextView
             android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
@@ -110,7 +107,6 @@
             android:textSize="14sp"
             android:textStyle="bold"/>
 
-        <!-- Corazón -->
         <ImageView
             android:id="@+id/imgHeart"
             android:layout_width="14dp"
@@ -120,27 +116,26 @@
 
     </LinearLayout>
 
-    <!--
-        Progress bar y "Cargando..." NO se conectan al subtítulo: quedan anclados
-        al fondo de la pantalla, dejando el hueco libre grande que se ve en la
-        referencia entre el subtítulo y ellos.
-    -->
+    <!-- Indicador de Carga oculto e independizado para deslizar desde abajo -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleSmall"
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:layout_marginBottom="14dp"
+        android:alpha="0"
         android:indeterminate="true"
         android:indeterminateTint="@android:color/white"
         app:layout_constraintBottom_toTopOf="@id/tvLoading"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
     <TextView
         android:id="@+id/tvLoading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="64dp"
+        android:alpha="0"
         android:text="Cargando..."
         android:textColor="#CCFFFFFF"
         android:textSize="12sp"
