@@ -2,91 +2,73 @@ package com.app.tmarita
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat // <-- Asegúrate de importar esto
+import androidx.lifecycle.lifecycleScope
 import com.app.tmarita.databinding.ActivitySplashBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
 
+    private val fotos = listOf(
+        R.drawable.foto1, R.drawable.foto2, R.drawable.foto3,
+        R.drawable.foto4, R.drawable.foto5, R.drawable.foto6,
+        R.drawable.foto7, R.drawable.foto8, R.drawable.foto9
+    )
+
+    private val intervaloCambioMs = 1100L
+    private val duracionSplashMs = 4200L
+    private val fadeDurationMs = 500L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // IMPORTANTE: Hace que la app ocupe toda la pantalla incluyendo la barra superior
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val frases = resources.getStringArray(R.array.frases_splash)
-        binding.tvQuote.text = frases.random()
+        binding.tvSubtitle.text = resources.getStringArray(R.array.frases_splash).random()
 
-        binding.ivTitle.alpha = 0f
-        binding.tvQuote.alpha = 0f
-        binding.tvQuote.translationY = 10f
+        iniciarCicloDeFotos()
 
-        animateCollage()
-
-        binding.ivTitle.animate()
-            .alpha(1f)
-            .setDuration(500)
-            .setStartDelay(200)
-            .start()
-
-        binding.tvQuote.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(600)
-            .setStartDelay(700)
-            .start()
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
+        lifecycleScope.launch {
+            delay(duracionSplashMs)
+            startActivity(Intent(this@SplashActivity, MainActivity::class.java))
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
-        }, 4400)
+        }
     }
 
-    private fun animateCollage() {
-        val slots = listOf(
-            binding.foto1, binding.foto2, binding.foto3, binding.foto4, binding.foto5,
-            binding.foto6, binding.foto7, binding.foto8, binding.foto9
-        )
+    private fun iniciarCicloDeFotos() {
+        val orden = fotos.shuffled().toMutableList()
+        var indice = 0
 
-        val drawablesRandom = listOf(
-            R.drawable.foto1, R.drawable.foto2, R.drawable.foto3, R.drawable.foto4, R.drawable.foto5,
-            R.drawable.foto6, R.drawable.foto7, R.drawable.foto8, R.drawable.foto9
-        ).shuffled()
+        binding.ivPhotoA.setImageResource(orden[indice])
 
-        slots.forEachIndexed { i, iv -> iv.setImageResource(drawablesRandom[i]) }
+        lifecycleScope.launch {
+            var mostrandoA = true
+            while (!isFinishing && !isDestroyed) {
+                delay(intervaloCambioMs)
 
-        val screenW = resources.displayMetrics.widthPixels.toFloat()
-        val screenH = resources.displayMetrics.heightPixels.toFloat()
+                indice = (indice + 1) % orden.size
+                if (indice == 0) orden.shuffle()
 
-        slots.shuffled().forEachIndexed { index, foto ->
-            val direccion = (0..3).random()
-            val offsetX = when (direccion) { 0 -> -screenW * 0.4f; 1 -> screenW * 0.4f; else -> 0f }
-            val offsetY = when (direccion) { 2 -> -screenH * 0.3f; 3 -> screenH * 0.3f; else -> 0f }
-            val rotacion = listOf(-14f, -9f, 9f, 14f).random()
+                val entrante: ImageView = if (mostrandoA) binding.ivPhotoB else binding.ivPhotoA
+                val saliente: ImageView = if (mostrandoA) binding.ivPhotoA else binding.ivPhotoB
 
-            foto.alpha = 0f
-            foto.translationX = offsetX
-            foto.translationY = offsetY
-            foto.rotation = rotacion
-            foto.scaleX = 0.85f
-            foto.scaleY = 0.85f
+                entrante.setImageResource(orden[indice])
+                entrante.alpha = 0f
+                entrante.animate().alpha(1f).setDuration(fadeDurationMs).start()
+                saliente.animate().alpha(0f).setDuration(fadeDurationMs).start()
 
-            foto.animate()
-                .alpha(1f)
-                .translationX(0f)
-                .translationY(0f)
-                .rotation(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(550)
-                .setStartDelay(index * 110L)
-                .setInterpolator(DecelerateInterpolator(1.4f))
-                .start()
+                mostrandoA = !mostrandoA
+            }
         }
     }
 }

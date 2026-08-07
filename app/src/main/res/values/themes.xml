@@ -1,11 +1,18 @@
 <resources>
 
+    <!-- Tema principal -->
+    <style name="Theme.TMarita" parent="Theme.Material3.DayNight.NoActionBar" />
+
     <!-- Tema del Splash -->
     <style name="Theme.TMarita.Splash" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/bg_splash</item>
-    </style>
+        <!-- 1. Establece el color de fondo inmediato antes de cargar el XML (Elimina el destello blanco) -->
+        <item name="android:windowBackground">@color/splash_pink</item>
 
-    <!-- Tema principal -->
-    <style name="Theme.TMarita" parent="Theme.Material3.DayNight.NoActionBar"/>
+        <!-- 2. Barras transparentes -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 
 </resources>
