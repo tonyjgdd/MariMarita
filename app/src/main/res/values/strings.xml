@@ -4,14 +4,14 @@
     <string name="subtitle">Descubriendo el Perú <b>juntos</b> </string>
 
     <string-array name="frases_splash">
-        <item>Más de 10 años después, te volví a encontrar </item>
-        <item>Mi casualidad favorita </item>
-        <item>Contigo, cada departamento sabe mejor </item>
-        <item>Coloreando el Perú, un viaje a la vez </item>
-        <item>De todas las casualidades, tú eres la mejor ️</item>
-        <item>Nuestro mapa, nuestras historias ️</item>
-        <item>Contigo hasta el último departamento ️</item>
-        <item>El destino se tomó su tiempo, pero acertó ️</item>
+        <item>Más de 10 años después, te volví a encontrar  </item>
+        <item>Mi casualidad favorita  </item>
+        <item>Contigo, cada departamento sabe mejor  </item>
+        <item>Coloreando el Perú, un viaje a la vez  </item>
+        <item>De todas las casualidades, tú eres la mejor  </item>
+        <item>Nuestro mapa, nuestras historias  </item>
+        <item>Contigo hasta el último departamento  </item>
+        <item>El destino se tomó su tiempo, pero acertó  </item>
     </string-array>
 
 </resources>

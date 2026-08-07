@@ -11,6 +11,6 @@
     <color name="card_stroke">#F5D8D5</color>      <!-- borde rosado muy suave -->
     <color name="accent_track">#F5E3E0</color>     <!-- track de la progress bar en tono rosado -->
     <color name="splash_pink">#FFB6C1</color>
-    <color name="rojo">#C62828</color>
+    <color name="rojo">#ecded6</color>
 
 </resources>

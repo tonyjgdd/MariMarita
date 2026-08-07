@@ -7,9 +7,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/logo_mari2"
+        android:icon="@drawable/logo_sfr"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/logo_mari2"
+        android:roundIcon="@drawable/logo_sfr"
         android:supportsRtl="true"
         android:theme="@style/Theme.TMarita"
         tools:targetApi="31">
