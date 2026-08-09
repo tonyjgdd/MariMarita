@@ -42,18 +42,6 @@ class PeruMapFragment : Fragment() {
 
         frases = resources.getStringArray(R.array.welcome_quotes)
 
-        // primera frase (entrada inicial, igual que antes)
-        binding.tvSubtitle.text = nextPhrase()
-        binding.tvSubtitle.alpha = 0f
-        binding.tvSubtitle.translationY = 35f
-        binding.tvSubtitle.postDelayed({
-            binding.tvSubtitle.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(1400)
-                .start()
-        }, 500)
-
         binding.peruMapView.onRegionClick = { region ->
             viewModel.onRegionTapped(region)
         }
@@ -72,37 +60,8 @@ class PeruMapFragment : Fragment() {
         }
 
         observeUiState()
-        startPhraseRotation()
     }
 
-    /** Cambia tvSubtitle cada 5s con un fundido, mientras la vista esté visible (STARTED). */
-    private fun startPhraseRotation() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                while (true) {
-                    delay(5000)
-                    animateToPhrase(nextPhrase())
-                }
-            }
-        }
-    }
-
-    private fun animateToPhrase(text: String) {
-        binding.tvSubtitle.animate()
-            .alpha(0f)
-            .translationY(-12f)
-            .setDuration(300)
-            .withEndAction {
-                binding.tvSubtitle.text = text
-                binding.tvSubtitle.translationY = 12f
-                binding.tvSubtitle.animate()
-                    .alpha(1f)
-                    .translationY(0f)
-                    .setDuration(400)
-                    .start()
-            }
-            .start()
-    }
 
     /** Elige una frase al azar sin repetir la anterior (si hay más de una). */
     private fun nextPhrase(): String {
@@ -143,7 +102,7 @@ class PeruMapFragment : Fragment() {
         binding.progressBar.progress = state.visitedCount
 
 //        binding.progressText.text = "${state.visitedCount} de ${state.totalCount} · ${state.progressPercent}%"
-        binding.progressText.text = "Vamos ${state.visitedCount} de ${state.totalCount} departamentos 🇵🇪"
+        binding.progressText.text = "Vamos ${state.visitedCount} de ${state.totalCount} departamentos"
         renderSelection(state)
     }
 
