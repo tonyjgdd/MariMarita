@@ -49,20 +49,32 @@ class PeruMapView @JvmOverloads constructor(
     private val minZoom = 1f
     private val maxZoom = 5f
 
+
+
     // ---- Colores base ----
-    private val colorVisitedTop = Color.parseColor("#A9D3A5")   // verde salvia claro
-    private val colorVisitedBottom = Color.parseColor("#7FAF7A") // verde salvia oscuro
-    private val colorPendingTop = Color.parseColor("#E3A9A0")    // terracota claro
-    private val colorPendingBottom = Color.parseColor("#C77E72") // terracota oscuro
+    // Departamentos Visitados (Verde bonito con volumen)
+    private val colorVisitedTop = Color.parseColor("#A3D9A5")   // Verde claro
+    private val colorVisitedBottom = Color.parseColor("#6EB872") // Verde vivo
+
+    // Departamentos Pendientes / No visitados (Blanco puro)
+    private val colorPendingTop = Color.parseColor("#FFFFFF")    // Blanco
+    private val colorPendingBottom = Color.parseColor("#FFFFFF") // Blanco
 
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
+
+    // Borde de los departamentos (Plomo / Gris)
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = Color.parseColor("#2B3A3A")
-        strokeWidth = 1f
+        color = Color.parseColor("#B0B0B0") // Plomo suave
+        strokeWidth = 1.2f
     }
+
+
+
+
+
 
     // Halo de selección: varias pasadas con distinto grosor/alpha = efecto glow
     private val selectedGlowColor = Color.parseColor("#B08D57") // gold
@@ -110,6 +122,8 @@ class PeruMapView @JvmOverloads constructor(
 
     var onRegionClick: ((PeruRegion) -> Unit)? = null
     var onEmptyAreaClick: (() -> Unit)? = null
+    var onZoomStateChanged: ((isZoomed: Boolean) -> Unit)? = null
+
 
     private fun animateVisitChange(regionId: String, toVisited: Boolean) {
         activeAnimators[regionId]?.cancel()
@@ -151,6 +165,7 @@ class PeruMapView @JvmOverloads constructor(
         zoom = 1f
         recomputeTotalMatrix()
         invalidate()
+        onZoomStateChanged?.invoke(false) // Notifica que volvió al zoom mínimo
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -180,6 +195,7 @@ class PeruMapView @JvmOverloads constructor(
         return matrixValues[Matrix.MSCALE_X]
     }
 
+    // 👈 REEMPLAZA TU scaleDetector CON ESTE
     private val scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             val proposedZoom = (zoom * detector.scaleFactor).coerceIn(minZoom, maxZoom)
@@ -189,6 +205,9 @@ class PeruMapView @JvmOverloads constructor(
                 zoom = proposedZoom
                 recomputeTotalMatrix()
                 invalidate()
+
+                // Notifica si la pantalla tiene zoom (true) o si está en el zoom inicial (false)
+                onZoomStateChanged?.invoke(zoom > minZoom)
             }
             return true
         }

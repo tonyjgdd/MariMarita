@@ -14,7 +14,7 @@ import com.app.tmarita.R
 import com.app.tmarita.databinding.FragmentMapBinding
 import com.app.tmarita.viewmodel.PeruMapViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
+import android.transition.TransitionManager
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -42,12 +42,29 @@ class PeruMapFragment : Fragment() {
 
         frases = resources.getStringArray(R.array.welcome_quotes)
 
+        // 1. Al tocar un departamento: selecciona la región y oculta el Card de Progreso
         binding.peruMapView.onRegionClick = { region ->
+            hideCardProgress()
             viewModel.onRegionTapped(region)
         }
 
         binding.peruMapView.onEmptyAreaClick = {
             viewModel.clearSelection()
+        }
+
+        // 2. 👈 ESCUCHA LOS CAMBIOS DE ZOOM
+        binding.peruMapView.onZoomStateChanged = { isZoomed ->
+            if (isZoomed) {
+                hideCardProgress()
+            } else {
+                showCardProgress()
+            }
+        }
+
+        // 3. 👈 CLIC EN LA BRÚJULA: Centra el mapa y muestra el Card de Progreso
+        binding.btnLocateMe.setOnClickListener {
+            binding.peruMapView.resetZoom()
+            showCardProgress()
         }
 
         binding.btnOpenRegion.setOnClickListener {
@@ -61,6 +78,7 @@ class PeruMapFragment : Fragment() {
 
         observeUiState()
     }
+
 
 
     /** Elige una frase al azar sin repetir la anterior (si hay más de una). */
@@ -122,6 +140,22 @@ class PeruMapFragment : Fragment() {
             else -> "Aún no visitado"
         }
     }
+
+
+    private fun hideCardProgress() {
+        if (binding.cardProgress.visibility == View.VISIBLE) {
+            TransitionManager.beginDelayedTransition(binding.cardProgress.parent as ViewGroup)
+            binding.cardProgress.visibility = View.GONE
+        }
+    }
+
+    private fun showCardProgress() {
+        if (binding.cardProgress.visibility != View.VISIBLE) {
+            TransitionManager.beginDelayedTransition(binding.cardProgress.parent as ViewGroup)
+            binding.cardProgress.visibility = View.VISIBLE
+        }
+    }
+
 
 
     override fun onDestroyView() {
