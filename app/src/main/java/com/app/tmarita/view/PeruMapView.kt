@@ -57,8 +57,8 @@ class PeruMapView @JvmOverloads constructor(
     private val colorVisitedBottom = Color.parseColor("#6EB872") // Verde vivo
 
     // Departamentos Pendientes / No visitados (Blanco puro)
-    private val colorPendingTop = Color.parseColor("#FFFFFF")    // Blanco
-    private val colorPendingBottom = Color.parseColor("#FFFFFF") // Blanco
+    private val colorPendingTop = Color.parseColor("#FAFAFA")    // Blanco
+    private val colorPendingBottom = Color.parseColor("#FAFAFA") // Blanco
 
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
@@ -77,7 +77,7 @@ class PeruMapView @JvmOverloads constructor(
 
 
     // Halo de selección: varias pasadas con distinto grosor/alpha = efecto glow
-    private val selectedGlowColor = Color.parseColor("#B08D57") // gold
+    private val selectedGlowColor = Color.parseColor("#B0B0B0") // gold
     private val selectedGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
     }

@@ -1,9 +1,12 @@
 package com.app.tmarita.ui.map
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -28,6 +31,9 @@ class PeruMapFragment : Fragment() {
     private lateinit var frases: Array<String>
     private var lastPhraseIndex = -1
 
+    // Guardamos el margen original del header (16dp del XML) para no perderlo al aplicar el inset
+    private var headerBaseTopMargin = 0
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,6 +47,12 @@ class PeruMapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         frases = resources.getStringArray(R.array.welcome_quotes)
+
+        // Guardamos el margen que ya viene del XML (16dp)
+        headerBaseTopMargin =
+            (binding.headerContainer.layoutParams as ViewGroup.MarginLayoutParams).topMargin
+
+        setupWindowInsets()
 
         // 1. Al tocar un departamento: selecciona la región y oculta el Card de Progreso
         binding.peruMapView.onRegionClick = { region ->
@@ -79,7 +91,35 @@ class PeruMapFragment : Fragment() {
         observeUiState()
     }
 
+    /**
+     * Solo la parte de ARRIBA es edge-to-edge: el mapa se extiende detrás de la barra de
+     * estado (hora, batería) y el header baja lo justo para no quedar tapado.
+     *
+     * Abajo NO hacemos edge-to-edge: le damos ese espacio como padding al contenedor raíz,
+     * así el mapa y el bottomNavBar quedan automáticamente por ENCIMA de la barra de
+     * navegación del sistema (botones o gestos), como en una app normal sin edge-to-edge ahí.
+     */
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { rootView, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
+            // Header respeta la barra de estado (arriba)
+            (binding.headerContainer.layoutParams as ViewGroup.MarginLayoutParams).topMargin =
+                systemBars.top + headerBaseTopMargin
+            binding.headerContainer.requestLayout()
+
+            // El root reserva el espacio de abajo, empujando todo el contenido (mapa incluido)
+            // hacia arriba de la barra de navegación del sistema
+            rootView.setPadding(
+                rootView.paddingLeft,
+                rootView.paddingTop,
+                rootView.paddingRight,
+                systemBars.bottom
+            )
+
+            insets
+        }
+    }
 
     /** Elige una frase al azar sin repetir la anterior (si hay más de una). */
     private fun nextPhrase(): String {

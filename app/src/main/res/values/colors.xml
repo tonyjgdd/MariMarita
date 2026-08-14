@@ -4,7 +4,7 @@
     <color name="accent">#B76E79</color>
     <color name="green">#8FBC8F</color>
 
-    <color name="cream">#FFF8F6</color>          <!-- antes probablemente #FFFFFF o #FAFAFA -->
+    <color name="cream">#FAFAFA</color>          <!-- antes probablemente #FFFFFF o #FAFAFA -->
     <color name="ink">#2B1B1A</color>              <!-- carbón cálido en vez de negro puro -->
     <color name="ink_soft">#8A6F6D</color>         <!-- gris-rosado en vez de gris neutro -->
     <color name="card">#FFFFFF</color>
