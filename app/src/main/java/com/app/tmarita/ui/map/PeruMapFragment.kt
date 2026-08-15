@@ -1,5 +1,7 @@
 package com.app.tmarita.ui.map
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -18,6 +20,8 @@ import com.app.tmarita.databinding.FragmentMapBinding
 import com.app.tmarita.viewmodel.PeruMapViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import android.transition.TransitionManager
+import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.animation.doOnEnd
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -33,6 +37,50 @@ class PeruMapFragment : Fragment() {
 
     // Guardamos el margen original del header (16dp del XML) para no perderlo al aplicar el inset
     private var headerBaseTopMargin = 0
+
+    private var pandaAnimator: AnimatorSet? = null
+
+    private fun startPandaAnimation() {
+        if (pandaAnimator?.isRunning == true) return
+
+        val panda = binding.ivHeaderPanda
+
+        // Traslación: se mueve al espacio libre de la derecha y vuelve
+        val translate = ObjectAnimator.ofFloat(panda, "translationX", 0f, 25f, 0f).apply {
+            duration = 3000
+        }
+
+        // Leve rotación para dar sensación de "paso"
+        val rotate = ObjectAnimator.ofFloat(panda, "rotation", 0f, -6f, 6f, 0f).apply {
+            duration = 1000
+        }
+
+        // Rebotecito vertical sutil, sincronizado
+        val bounce = ObjectAnimator.ofFloat(panda, "translationY", 0f, -4f, 0f).apply {
+            duration = 1000
+        }
+
+        pandaAnimator = AnimatorSet().apply {
+            playTogether(translate, rotate, bounce)
+            interpolator = AccelerateDecelerateInterpolator()
+            doOnEnd {
+                // Se reinicia solo mientras el fragment siga visible
+                if (isAdded && view != null) startPandaAnimation()
+            }
+            start()
+        }
+    }
+
+    private fun stopPandaAnimation() {
+        pandaAnimator?.cancel()
+        pandaAnimator = null
+        binding.ivHeaderPanda.translationX = 0f
+        binding.ivHeaderPanda.translationY = 0f
+        binding.ivHeaderPanda.rotation = 0f
+    }
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -231,10 +279,19 @@ class PeruMapFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        startPandaAnimation()
+    }
 
+    override fun onPause() {
+        super.onPause()
+        stopPandaAnimation()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        stopPandaAnimation()
         _binding = null
     }
 }

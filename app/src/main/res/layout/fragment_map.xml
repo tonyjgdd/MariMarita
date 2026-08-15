@@ -27,6 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- ================= 3. HEADER FLOTANTE ================= -->
+    <!-- ================= 3. HEADER FLOTANTE ================= -->
     <LinearLayout
         android:id="@+id/headerContainer"
         android:layout_width="0dp"
@@ -34,28 +35,32 @@
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/bg_floating_panel"
-        android:clipToOutline="true"
-        android:elevation="10dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Título: tamaño ideal, sin weight -->
         <ImageView
             android:id="@+id/ivHeaderLogo"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_height="25dp"
             android:adjustViewBounds="true"
-            android:src="@drawable/titulo3"
+            android:src="@drawable/titulo8"
+            android:contentDescription="@string/app_name" />
+
+        <!-- Panda: al lado inmediato del título -->
+        <ImageView
+            android:id="@+id/ivHeaderPanda"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/logo_sf"
             android:contentDescription="@string/app_name" />
 
     </LinearLayout>
-
-
     <!-- ================= 4. CARD DE PROGRESO (flota debajo del header) ================= -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardProgress"
@@ -71,7 +76,7 @@
         app:cardElevation="10dp"
         app:cardBackgroundColor="@color/cream"
         app:strokeColor="@color/card_stroke"
-        app:strokeWidth="1dp">
+        app:strokeWidth="1.5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -150,15 +155,13 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/regionInfoCard"
         android:layout_width="0dp"
-        android:layout_height="110dp"
+        android:layout_height="160dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="16dp"
         android:visibility="gone"
         app:cardCornerRadius="18dp"
         app:cardElevation="14dp"
-        app:strokeColor="@color/card_stroke"
-        app:strokeWidth="1dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottomNavBar">
