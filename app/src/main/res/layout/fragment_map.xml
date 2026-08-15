@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ================= 1. FONDO AZUL DEGRADADO (respaldo detrás del mapa) ================= -->
     <View
@@ -146,68 +146,100 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottomNavBar"/>
 
-    <!-- ================= 6. TARJETA FLOTANTE DE REGIÓN ================= -->
+    <!-- ================= 6. TARJETA FLOTANTE DE REGIÓN (con imagen de fondo) ================= -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/regionInfoCard"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="110dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="16dp"
         android:visibility="gone"
         app:cardCornerRadius="18dp"
         app:cardElevation="14dp"
-        app:cardBackgroundColor="@color/card"
         app:strokeColor="@color/card_stroke"
         app:strokeWidth="1dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottomNavBar">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="14dp">
+            android:layout_height="match_parent">
 
+            <!-- Imagen de fondo, distinta por cada departamento -->
+            <ImageView
+                android:id="@+id/regionBackgroundImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null"
+                tools:src="@tools:sample/backgrounds/scenic" />
+
+            <!-- Scrim: oscurece la parte donde va el texto, para que siempre se lea bien -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_region_scrim" />
+
+            <!-- Contenido: texto blanco + botón, encima de la imagen -->
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/regionNameText"
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/regionNameText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="serif"
+                        android:text="Cusco"
+                        android:textColor="@color/cream"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
+                        android:shadowColor="#66000000"
+                        android:shadowDx="0"
+                        android:shadowDy="1"
+                        android:shadowRadius="3"/>
+
+                    <TextView
+                        android:id="@+id/regionStatusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Aún no visitado"
+                        android:textColor="@color/cream"
+                        android:alpha="0.9"
+                        android:textSize="12sp"
+                        android:shadowColor="#66000000"
+                        android:shadowDx="0"
+                        android:shadowDy="1"
+                        android:shadowRadius="3"/>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenRegion"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="serif"
-                    android:text="Cusco"
-                    android:textColor="@color/ink"
-                    android:textSize="17sp"
-                    android:textStyle="bold"/>
+                    android:text="Abrir"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="@color/accent" />
 
-                <TextView
-                    android:id="@+id/regionStatusText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="Aún no visitado"
-                    android:textColor="@color/ink_soft"
-                    android:textSize="12sp"/>
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnOpenRegion"
-                style="@style/Widget.MaterialComponents.Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Abrir"
-                app:cornerRadius="12dp"
-                app:backgroundTint="@color/green" />
-
-        </LinearLayout>
+        </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
+
+
 
     <!-- ================= 7. BARRA INFERIOR FLOTANTE ================= -->
     <LinearLayout

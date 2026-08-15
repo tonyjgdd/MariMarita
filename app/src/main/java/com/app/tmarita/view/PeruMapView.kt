@@ -76,26 +76,31 @@ class PeruMapView @JvmOverloads constructor(
 
 
 
-    // Halo de selección: varias pasadas con distinto grosor/alpha = efecto glow
-    private val selectedGlowColor = Color.parseColor("#B0B0B0") // gold
+    // Halo de selección: color de acento distinto al borde normal, para que se note
+    // claramente sin importar el zoom o el estado (visitado/pendiente) del departamento.
+    private val selectedAccentColor = Color.parseColor("#2D6CDF") // azul, estándar de "seleccionado" en apps de mapas
+    private val selectedFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = selectedAccentColor
+        alpha = 45 // relleno muy sutil, solo para "tintar" el departamento seleccionado
+    }
     private val selectedGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-    }
-    private val selectedCorePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        color = selectedGlowColor
-        strokeWidth = 3f
+        color = selectedAccentColor
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
     }
 
+    // ---- Estilo de etiquetas: pequeñas, negritas, sutiles ----
     private val labelFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = Color.parseColor("#2B2420")
         textAlign = Paint.Align.CENTER
-        typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
-        setShadowLayer(4f, 0f, 1f, Color.parseColor("#80FFFFFF"))
+        typeface = android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD)
+        setShadowLayer(3f, 0f, 1f, Color.parseColor("#66FFFFFF"))
     }
-    private val labelTextSizePx = 34f
-    private val labelPaddingPx = 16f
+    private val labelTextSizePx = 20f
+    private val labelPaddingPx = 20f
 
     // ---- Progreso de animación por región: 0f = pendiente, 1f = visitado ----
     // Se anima suavemente cada vez que un id entra/sale de visitedIds, en vez de saltar de color.
@@ -277,10 +282,14 @@ class PeruMapView @JvmOverloads constructor(
 
             canvas.drawPath(dr.path, fillPaint)
             canvas.drawPath(dr.path, strokePaint)
+        }
 
-            if (dr.region.id == selectedRegionId) {
-                drawSelectionGlow(canvas, dr.path)
-            }
+        // 👇 El borde de selección se dibuja AL FINAL, encima de TODOS los departamentos.
+        // Si se dibujara dentro del forEach de arriba, los vecinos dibujados después
+        // taparían parte del borde azul en los lados que comparten contigo (por eso
+        // antes se veían "lados sin azul": los internos, colindantes con otro depto).
+        drawableRegions.firstOrNull { it.region.id == selectedRegionId }?.let { selectedDr ->
+            drawSelectionGlow(canvas, selectedDr.path, currentScale())
         }
 
         canvas.restore()
@@ -288,22 +297,31 @@ class PeruMapView @JvmOverloads constructor(
         drawLabels(canvas)
     }
 
-    /** Halo de selección: 3 pasadas de stroke, de más ancha/transparente a más fina/opaca. */
-    private fun drawSelectionGlow(canvas: Canvas, path: Path) {
-        val steps = listOf(
-            10f to 40,   // ancho, muy transparente (el "resplandor")
-            6f to 90,
-            3f to 255    // núcleo, opaco
-        )
-        steps.forEach { (width, alpha) ->
-            selectedGlowPaint.strokeWidth = width
-            selectedGlowPaint.color = selectedGlowColor
-            selectedGlowPaint.alpha = alpha
-            canvas.drawPath(path, selectedGlowPaint)
-        }
+    /**
+     * Marca visualmente el departamento seleccionado con:
+     * 1. Un relleno semitransparente de color de acento (se nota sin importar si el
+     *    departamento está "visitado" en verde o "pendiente" en blanco).
+     * 2. Un borde sólido y limpio del mismo color, de grosor CONSTANTE en pantalla
+     *    (se divide entre `scale` porque este dibujo ocurre dentro del canvas ya
+     *    transformado por zoom/pan — sin esto, el borde se ve grueso al hacer zoom).
+     */
+    private fun drawSelectionGlow(canvas: Canvas, path: Path, scale: Float) {
+        canvas.drawPath(path, selectedFillPaint)
+
+        selectedGlowPaint.strokeWidth = 3.5f / scale
+        canvas.drawPath(path, selectedGlowPaint)
     }
 
+    /**
+     * Dibuja las etiquetas SOLO cuando el usuario ha hecho zoom (zoom > minZoom) y,
+     * además, el departamento ya es lo bastante grande en pantalla para que el texto
+     * calce sin desbordarse. Al iniciar (zoom mínimo, mapa completo) no se muestra
+     * ningún nombre — así el mapa se ve limpio y los nombres aparecen progresivamente
+     * a medida que el usuario explora.
+     */
     private fun drawLabels(canvas: Canvas) {
+        if (zoom <= minZoom) return // 👈 nada de texto hasta que el usuario haga zoom
+
         val scale = currentScale()
         labelFillPaint.textSize = labelTextSizePx
         val textHeight = labelFillPaint.fontMetrics.let { it.descent - it.ascent }

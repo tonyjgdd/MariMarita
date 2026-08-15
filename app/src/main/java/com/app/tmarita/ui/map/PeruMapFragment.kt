@@ -168,9 +168,11 @@ class PeruMapFragment : Fragment() {
         val region = state.selectedRegion
         if (region == null) {
             binding.regionInfoCard.visibility = View.GONE
+            showLocateButton()
             return
         }
         binding.regionInfoCard.visibility = View.VISIBLE
+        hideLocateButton() // 👈 mismo lugar que el regionInfoCard: se ocultan mutuamente
 
         val isLima = state.isLimaGroup(region.id)
         binding.regionNameText.text = if (isLima) "Lima" else region.title
@@ -178,6 +180,39 @@ class PeruMapFragment : Fragment() {
             isLima -> "Siempre visitado 💛"
             region.id in state.visitedIds -> "Visitado"
             else -> "Aún no visitado"
+        }
+
+        binding.regionBackgroundImage.setImageResource(getRegionBackgroundRes(region.id))
+    }
+
+    /**
+     * Busca un drawable con el patrón "bg_region_<id>" (ej: bg_region_cusco, bg_region_puno).
+     * Si no existe una imagen para ese departamento, usa una imagen genérica de respaldo
+     * (bg_region_default) para que nunca se vea un espacio vacío o roto.
+     *
+     * Ventaja de este enfoque: solo necesitas AGREGAR el drawable con el nombre correcto
+     * en res/drawable — no hay que tocar código cada vez que agregues una nueva foto.
+     */
+    private fun getRegionBackgroundRes(regionId: String): Int {
+        val resId = resources.getIdentifier(
+            "bg_region_${regionId.lowercase()}",
+            "drawable",
+            requireContext().packageName
+        )
+        return if (resId != 0) resId else R.drawable.foto5
+    }
+
+    private fun hideLocateButton() {
+        if (binding.btnLocateMe.visibility == View.VISIBLE) {
+            TransitionManager.beginDelayedTransition(binding.btnLocateMe.parent as ViewGroup)
+            binding.btnLocateMe.visibility = View.GONE
+        }
+    }
+
+    private fun showLocateButton() {
+        if (binding.btnLocateMe.visibility != View.VISIBLE) {
+            TransitionManager.beginDelayedTransition(binding.btnLocateMe.parent as ViewGroup)
+            binding.btnLocateMe.visibility = View.VISIBLE
         }
     }
 
