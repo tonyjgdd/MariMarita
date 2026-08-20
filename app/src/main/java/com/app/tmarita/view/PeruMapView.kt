@@ -249,6 +249,48 @@ class PeruMapView @JvmOverloads constructor(
         totalMatrix.invert(inverseTotalMatrix)
     }
 
+    private val viewportRectF = RectF()
+    private val mappedViewportRectF = RectF()
+
+    /**
+     * Evita que el mapa se pueda arrastrar/zoomear fuera de la pantalla.
+     * - Si el mapa (con el zoom actual) es más CHICO que la pantalla en algún eje,
+     *   lo centra en ese eje (no deja que "flote" hacia un lado).
+     * - Si el mapa es más GRANDE que la pantalla en algún eje, no deja que sus bordes
+     *   se despeguen del borde de la pantalla (evita ver "vacío" de ese lado).
+     * Se llama después de cada pan o pinch-zoom.
+     */
+    private fun clampUserMatrix() {
+        if (viewportWidth <= 0f || viewportHeight <= 0f || width <= 0 || height <= 0) return
+
+        viewportRectF.set(0f, 0f, viewportWidth, viewportHeight)
+        totalMatrix.mapRect(mappedViewportRectF, viewportRectF)
+
+        val viewW = width.toFloat()
+        val viewH = height.toFloat()
+
+        val dx = when {
+            mappedViewportRectF.width() <= viewW ->
+                (viewW - mappedViewportRectF.width()) / 2f - mappedViewportRectF.left
+            mappedViewportRectF.left > 0f -> -mappedViewportRectF.left
+            mappedViewportRectF.right < viewW -> viewW - mappedViewportRectF.right
+            else -> 0f
+        }
+
+        val dy = when {
+            mappedViewportRectF.height() <= viewH ->
+                (viewH - mappedViewportRectF.height()) / 2f - mappedViewportRectF.top
+            mappedViewportRectF.top > 0f -> -mappedViewportRectF.top
+            mappedViewportRectF.bottom < viewH -> viewH - mappedViewportRectF.bottom
+            else -> 0f
+        }
+
+        if (dx != 0f || dy != 0f) {
+            userMatrix.postTranslate(dx, dy)
+            recomputeTotalMatrix()
+        }
+    }
+
     private fun currentScale(): Float {
         totalMatrix.getValues(matrixValues)
         return matrixValues[Matrix.MSCALE_X]
@@ -263,6 +305,7 @@ class PeruMapView @JvmOverloads constructor(
                 userMatrix.postScale(actualFactor, actualFactor, detector.focusX, detector.focusY)
                 zoom = proposedZoom
                 recomputeTotalMatrix()
+                clampUserMatrix()
                 invalidate()
 
                 // Notifica si la pantalla tiene zoom (true) o si está en el zoom inicial (false)
@@ -277,6 +320,7 @@ class PeruMapView @JvmOverloads constructor(
             if (zoom > minZoom) {
                 userMatrix.postTranslate(-dx, -dy)
                 recomputeTotalMatrix()
+                clampUserMatrix()
                 invalidate()
             }
             return true
