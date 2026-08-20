@@ -22,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import android.transition.TransitionManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.animation.doOnEnd
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -79,9 +80,6 @@ class PeruMapFragment : Fragment() {
         binding.ivHeaderPanda.rotation = 0f
     }
 
-
-
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -96,11 +94,15 @@ class PeruMapFragment : Fragment() {
 
         frases = resources.getStringArray(R.array.welcome_quotes)
 
+
         // Guardamos el margen que ya viene del XML (16dp)
         headerBaseTopMargin =
             (binding.headerContainer.layoutParams as ViewGroup.MarginLayoutParams).topMargin
 
         setupWindowInsets()
+
+        // 👈 Bucle para cambiar el texto de tvProgressLabel cada 5 segundos
+        startProgressLabelLoop()
 
         // 1. Al tocar un departamento: selecciona la región y oculta el Card de Progreso
         binding.peruMapView.onRegionClick = { region ->
@@ -112,7 +114,7 @@ class PeruMapFragment : Fragment() {
             viewModel.clearSelection()
         }
 
-        // 2. 👈 ESCUCHA LOS CAMBIOS DE ZOOM
+        // 2. ESCUCHA LOS CAMBIOS DE ZOOM
         binding.peruMapView.onZoomStateChanged = { isZoomed ->
             if (isZoomed) {
                 hideCardProgress()
@@ -121,7 +123,7 @@ class PeruMapFragment : Fragment() {
             }
         }
 
-        // 3. 👈 CLIC EN LA BRÚJULA: Centra el mapa y muestra el Card de Progreso
+        // 3. CLIC EN LA BRÚJULA: Centra el mapa y muestra el Card de Progreso
         binding.btnLocateMe.setOnClickListener {
             binding.peruMapView.resetZoom()
             showCardProgress()
@@ -140,24 +142,41 @@ class PeruMapFragment : Fragment() {
     }
 
     /**
-     * Solo la parte de ARRIBA es edge-to-edge: el mapa se extiende detrás de la barra de
-     * estado (hora, batería) y el header baja lo justo para no quedar tapado.
-     *
-     * Abajo NO hacemos edge-to-edge: le damos ese espacio como padding al contenedor raíz,
-     * así el mapa y el bottomNavBar quedan automáticamente por ENCIMA de la barra de
-     * navegación del sistema (botones o gestos), como en una app normal sin edge-to-edge ahí.
+     * Bucle que actualiza tvProgressLabel cada 5 segundos usando las frases de R.array.welcome_quotes
+     * con una animación suave de opacidad.
      */
+    private fun startProgressLabelLoop() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    val phrase = nextPhrase()
+                    if (phrase.isNotEmpty()) {
+                        binding.tvProgressLabel.animate()
+                            .alpha(0f)
+                            .setDuration(300)
+                            .withEndAction {
+                                binding.tvProgressLabel.text = "$phrase ️🩷"
+                                binding.tvProgressLabel.animate()
+                                    .alpha(1f)
+                                    .setDuration(300)
+                                    .start()
+                            }
+                            .start()
+                    }
+                    delay(5000L)
+                }
+            }
+        }
+    }
+
     private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { rootView, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-            // Header respeta la barra de estado (arriba)
             (binding.headerContainer.layoutParams as ViewGroup.MarginLayoutParams).topMargin =
                 systemBars.top + headerBaseTopMargin
             binding.headerContainer.requestLayout()
 
-            // El root reserva el espacio de abajo, empujando todo el contenido (mapa incluido)
-            // hacia arriba de la barra de navegación del sistema
             rootView.setPadding(
                 rootView.paddingLeft,
                 rootView.paddingTop,
@@ -207,7 +226,6 @@ class PeruMapFragment : Fragment() {
         binding.progressBar.max = state.totalCount
         binding.progressBar.progress = state.visitedCount
 
-//        binding.progressText.text = "${state.visitedCount} de ${state.totalCount} · ${state.progressPercent}%"
         binding.progressText.text = "Vamos ${state.visitedCount} de ${state.totalCount} departamentos"
         renderSelection(state)
     }
@@ -220,7 +238,7 @@ class PeruMapFragment : Fragment() {
             return
         }
         binding.regionInfoCard.visibility = View.VISIBLE
-        hideLocateButton() // 👈 mismo lugar que el regionInfoCard: se ocultan mutuamente
+        hideLocateButton()
 
         val isLima = state.isLimaGroup(region.id)
         binding.regionNameText.text = if (isLima) "Lima" else region.title
@@ -233,14 +251,6 @@ class PeruMapFragment : Fragment() {
         binding.regionBackgroundImage.setImageResource(getRegionBackgroundRes(region.id))
     }
 
-    /**
-     * Busca un drawable con el patrón "bg_region_<id>" (ej: bg_region_cusco, bg_region_puno).
-     * Si no existe una imagen para ese departamento, usa una imagen genérica de respaldo
-     * (bg_region_default) para que nunca se vea un espacio vacío o roto.
-     *
-     * Ventaja de este enfoque: solo necesitas AGREGAR el drawable con el nombre correcto
-     * en res/drawable — no hay que tocar código cada vez que agregues una nueva foto.
-     */
     private fun getRegionBackgroundRes(regionId: String): Int {
         val resId = resources.getIdentifier(
             "bg_region_${regionId.lowercase()}",
@@ -263,7 +273,6 @@ class PeruMapFragment : Fragment() {
             binding.btnLocateMe.visibility = View.VISIBLE
         }
     }
-
 
     private fun hideCardProgress() {
         if (binding.cardProgress.visibility == View.VISIBLE) {

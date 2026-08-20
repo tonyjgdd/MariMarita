@@ -90,7 +90,9 @@
                 android:layout_height="wrap_content"
                 android:text="Ya conocemos"
                 android:textColor="@color/ink_soft"
-                android:textSize="12sp"/>
+                android:textSize="12sp"
+                android:minLines="2"
+                android:maxLines="2"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

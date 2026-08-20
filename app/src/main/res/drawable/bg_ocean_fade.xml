@@ -12,38 +12,9 @@
         android:fillColor="#F4F1EA" />
 
     <!-- 2. OCÉANO: Gradiente azul suave en la costa oeste -->
-    <path
-        android:pathData="
-            M0,0
-            L120,0
-            L100,90
-            L118,180
-            L95,260
-            L112,340
-            L88,420
-            L105,500
-            L82,580
-            L98,660
-            L75,740
-            L90,800
-            L0,800 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:type="linear"
-                android:startX="0"
-                android:startY="0"
-                android:endX="130"
-                android:endY="0"
-                android:startColor="#B2D2E8"
-                android:endColor="#E3F0F8" />
-        </aapt:attr>
-    </path>
 
     <!-- 3. LÍNEA DE COSTA / OLA CONTINENTAL (Contorno del mar) -->
-    <path
-        android:pathData="M120,0 L100,90 L118,180 L95,260 L112,340 L88,420 L105,500 L82,580 L98,660 L75,740 L90,800"
-        android:strokeColor="#74A9C9"
-        android:strokeWidth="1.5" />
+
 
     <!-- 4. LÍNEAS TOPOGRÁFICAS / ISOÍPSAS (Efecto relieve sutil) -->
     <path
@@ -67,26 +38,5 @@
         android:strokeColor="#0D000000"
         android:strokeWidth="1" />
 
-    <!-- 6. DETALLE CARTOGRÁFICO: Simbolo de Norte / Rosa de los Vientos (Arriba Derecha) -->
-    <group
-        android:translateX="300"
-        android:translateY="80">
-        <!-- Círculo Exterior -->
-        <path
-            android:pathData="M 0,-22 A 22,22 0 1,1 -0.01,-22"
-            android:strokeColor="#1F000000"
-            android:strokeWidth="1" />
-        <!-- Aguja Norte -->
-        <path
-            android:pathData="M0,0 L0,-18 L5,0 Z"
-            android:fillColor="#30000000" />
-        <path
-            android:pathData="M0,0 L0,-18 L-5,0 Z"
-            android:fillColor="#15000000" />
-        <!-- Aguja Sur, Este, Oeste -->
-        <path
-            android:pathData="M0,0 L0,14 L3,0 Z M0,0 L14,0 L0,3 Z M0,0 L-14,0 L0,-3 Z"
-            android:fillColor="#15000000" />
-    </group>
 
 </vector>

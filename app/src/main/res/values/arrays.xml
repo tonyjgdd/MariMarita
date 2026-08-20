@@ -2,12 +2,51 @@
 <resources>
 
     <string-array name="welcome_quotes">
-        <item>Cada viaje comienza con un primer paso ️</item>
-        <item>El mejor destino siempre será contigo.</item>
-        <item>Un departamento más, un recuerdo más.</item>
-        <item>Nuestro mapa se llena de historias.</item>
-        <item>Viajar contigo hace que cualquier lugar sea especial.</item>
-        <item>La aventura continúa...</item>
+        <item>20 de junio, la cita que tanto tiempo tomó</item>
+        <item>Por viajar contigo, llevaría hasta nuggets en mi equipaje</item>
+        <item>El destino se tomó su tiempo, pero acertó</item>
+        <item>Canta, aguantaría ese frío mil veces para repetirlo</item>
+        <item>Eres mi casualidad favorita..</item>
+        <item>Dormir contigo es bonito.. salvo por los almohadazos</item>
+        <item>Apenas empezamos a recorrer el mapa juntos</item>
+        <item>Tus patadas de noche me recuerdan que estás a mi lado</item>
+        <item>10 años sin verte para terminar recibiendo almohadazos</item>
+        <item>Canjeé toda mi suerte al encontrarte</item>
+        <item>Contigo hasta el tráfico se hace corto</item>
+        <item>No creía en las señales hasta que apareciste tú</item>
+        <item>Cada mensaje tuyo es mi pausa favorita del día</item>
+        <item>Contigo hasta perderme en la ruta se siente bien</item>
+        <item>Si el destino se demoró, fue porque estaba preparando algo bueno</item>
+        <item>Contigo hasta el silencio se siente acompañado</item>
+        <item>Nunca pensé que extrañaría tanto los almohadazos</item>
+        <item>Contigo el tiempo pasa distinto, más lento y más bonito</item>
+        <item>Eres la sorpresa que no pedí pero que necesitaba</item>
+        <item>Contigo hasta las cosas simples se vuelven mi lugar favorito</item>
+        <item>10 años esperando sin saber que te esperaba a ti</item>
+        <item>Contigo el "buenos días" se convirtió en mi frase favorita</item>
+        <item>Nunca imaginé que un reencuentro cambiaría mi historia</item>
+        <item>Cada viaje contigo empieza con nervios y termina con sonrisas</item>
+        <item>Contigo hasta perder el norte se siente como encontrar un rumbo</item>
+        <item>Eres la prueba de que las mejores cosas llegan tarde, pero llegan</item>
+        <item>Contigo el "te extraño" se volvió costumbre diaria</item>
+        <item>Eres la casualidad que decidí convertir en destino</item>
+        <item>Gracias al destino por tomarse su tiempo, valió la pena la espera</item>
+        <item>El mejor destino siempre será contigo</item>
+    </string-array>
+
+
+    <string-array name="welcome">
+        <item>20 de junio, la cita que tanto tiempo tomó</item>
+        <item>El destino se tomó su tiempo, pero acertó</item>
+        <item>Eres mi casualidad favorita..</item>
+        <item>Apenas empezamos a recorrer el mapa juntos</item>
+        <item>Canjeé toda mi suerte al encontrarte</item>
+        <item>No creía en las señales hasta que apareciste tú</item>
+        <item>Cada mensaje tuyo es mi pausa favorita del día</item>
+        <item>10 años esperando sin saber que te esperaba a ti</item>
+        <item>Contigo el "te extraño" se volvió costumbre diaria</item>
+        <item>Eres la casualidad que decidí convertir en destino</item>
+        <item>El mejor destino siempre será contigo</item>
     </string-array>
 
 </resources>

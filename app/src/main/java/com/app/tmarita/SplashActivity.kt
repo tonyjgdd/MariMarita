@@ -33,7 +33,7 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.tvSubtitle.text = resources.getStringArray(R.array.frases_splash).random()
+        binding.tvSubtitle.text = resources.getStringArray(R.array.welcome).random()
 
         ejecutarAnimacionEntrada()
 

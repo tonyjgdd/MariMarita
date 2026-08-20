@@ -178,11 +178,14 @@ class PeruMapView @JvmOverloads constructor(
         updateBaseMatrix(w, h)
     }
 
+    private val initialScaleFactor = 0.85f
+    private val initialOffsetY = 120f
+
     private fun updateBaseMatrix(w: Int, h: Int) {
         if (viewportWidth <= 0 || viewportHeight <= 0 || w <= 0 || h <= 0) return
-        val scale = minOf(w / viewportWidth, h / viewportHeight)
+        val scale = minOf(w / viewportWidth, h / viewportHeight) * initialScaleFactor
         val dx = (w - viewportWidth * scale) / 2f
-        val dy = (h - viewportHeight * scale) / 2f
+        val dy = (h - viewportHeight * scale) / 2f + initialOffsetY
         baseMatrix.reset()
         baseMatrix.postScale(scale, scale)
         baseMatrix.postTranslate(dx, dy)
