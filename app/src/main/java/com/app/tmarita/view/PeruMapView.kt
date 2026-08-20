@@ -189,18 +189,21 @@ class PeruMapView @JvmOverloads constructor(
     fun focusRegionAboveBottom(regionId: String, reservedBottomPx: Float, extraPadding: Float = 24f) {
         val dr = drawableRegions.firstOrNull { it.region.id == regionId } ?: return
 
-        // Punto más bajo del departamento (peor caso de tapado), en su posición SIN offset de foco.
+        // Punto más bajo del departamento, en su posición base (sin offset de foco)...
         val bottomPoint = floatArrayOf(dr.bounds.centerX(), dr.bounds.bottom)
         totalMatrix.mapPoints(bottomPoint)
-        val regionBottomOnScreen = bottomPoint[1]
+        // ...más el offset YA vigente, para saber dónde está REALMENTE en pantalla ahora mismo.
+        val regionBottomOnScreen = bottomPoint[1] + focusTranslateY
 
         val visibleLimit = height - reservedBottomPx - extraPadding
         val overlap = regionBottomOnScreen - visibleLimit
 
-        // Si no se tapa (overlap <= 0), no lo movemos nada.
-        val targetOffset = if (overlap > 0f) -overlap else 0f
+        // Si con el offset actual el departamento YA se ve bien, no tocar nada.
+        if (overlap <= 0f) return
 
-        animateFocusTo(targetOffset)
+        // Si hace falta, sube SOLO lo adicional necesario desde donde ya está.
+        val target = focusTranslateY - overlap
+        animateFocusTo(target)
     }
 
     /** Revierte el offset de foco (el mapa vuelve a su posición normal). */
@@ -211,8 +214,8 @@ class PeruMapView @JvmOverloads constructor(
     private fun animateFocusTo(target: Float) {
         focusAnimator?.cancel()
         focusAnimator = ValueAnimator.ofFloat(focusTranslateY, target).apply {
-            duration = 500 // despacio, para que se note el movimiento sin ser brusco
-            interpolator = DecelerateInterpolator()
+            duration = 750 // más lento, para que el movimiento se sienta suave
+            interpolator = android.view.animation.AccelerateDecelerateInterpolator() // acelera y frena de a poco, sin golpe seco
             addUpdateListener {
                 focusTranslateY = it.animatedValue as Float
                 invalidate()

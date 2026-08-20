@@ -95,7 +95,7 @@ class PeruMapFragment : Fragment() {
         card.animate()
             .translationY(0f)
             .alpha(1f)
-            .setDuration(280)
+            .setDuration(650)
             .setInterpolator(DecelerateInterpolator())
             .start()
 
@@ -110,7 +110,7 @@ class PeruMapFragment : Fragment() {
         card.animate()
             .translationY(dpToPx(popupHeightDp))
             .alpha(0f)
-            .setDuration(220)
+            .setDuration(400)
             .setInterpolator(DecelerateInterpolator())
             .withEndAction {
                 card.visibility = View.GONE
