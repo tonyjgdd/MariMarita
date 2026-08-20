@@ -157,16 +157,16 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/regionInfoCard"
         android:layout_width="0dp"
-        android:layout_height="160dp"
+        android:layout_height="400dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         android:visibility="gone"
         app:cardCornerRadius="18dp"
         app:cardElevation="14dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavBar">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <FrameLayout
             android:layout_width="match_parent"

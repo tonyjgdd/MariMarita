@@ -24,6 +24,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.animation.doOnEnd
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.view.animation.DecelerateInterpolator
 
 @AndroidEntryPoint
 class PeruMapFragment : Fragment() {
@@ -40,6 +41,97 @@ class PeruMapFragment : Fragment() {
     private var headerBaseTopMargin = 0
 
     private var pandaAnimator: AnimatorSet? = null
+
+
+
+
+
+    // Nuevo campo de la clase, junto a los otros:
+    private var currentPopupRegionId: String? = null
+
+    private val popupHeightDp = 400
+    private val popupMarginBottomDp = 20
+
+
+    private fun dpToPx(dp: Int): Float =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), resources.displayMetrics)
+
+    private fun renderSelection(state: PeruMapUiState) {
+        val region = state.selectedRegion
+
+        if (region == null) {
+            if (currentPopupRegionId != null) hideRegionPopup()
+            currentPopupRegionId = null
+            return
+        }
+
+        val isNewSelection = currentPopupRegionId != region.id
+        currentPopupRegionId = region.id
+
+        val isLima = state.isLimaGroup(region.id)
+        binding.regionNameText.text = if (isLima) "Lima" else region.title
+        binding.regionStatusText.text = when {
+            isLima -> "Siempre visitado 💛"
+            region.id in state.visitedIds -> "Visitado"
+            else -> "Aún no visitado"
+        }
+        binding.regionBackgroundImage.setImageResource(getRegionBackgroundRes(region.id))
+
+        if (isNewSelection) {
+            showRegionPopup(region.id)
+        }
+    }
+
+    private fun showRegionPopup(regionId: String) {
+        hideLocateButton()
+        binding.bottomNavBar.visibility = View.GONE
+
+        val card = binding.regionInfoCard
+        card.animate().cancel()
+        card.visibility = View.VISIBLE
+        card.alpha = 0f
+        card.translationY = dpToPx(popupHeightDp) // arranca "escondido" abajo, como si estuviera tras la nav bar
+
+        card.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(280)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        // Alto del popup (160dp fijo en XML) + su margen inferior (20dp)
+        val reservedBottomPx = dpToPx(popupHeightDp) + dpToPx(popupMarginBottomDp)
+        binding.peruMapView.focusRegionAboveBottom(regionId, reservedBottomPx)
+    }
+
+    private fun hideRegionPopup() {
+        val card = binding.regionInfoCard
+        card.animate().cancel()
+        card.animate()
+            .translationY(dpToPx(popupHeightDp))
+            .alpha(0f)
+            .setDuration(220)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                card.visibility = View.GONE
+                card.translationY = 0f
+                card.alpha = 1f
+            }
+            .start()
+
+        binding.bottomNavBar.visibility = View.VISIBLE
+        showLocateButton()
+        binding.peruMapView.clearRegionFocus()
+    }
+
+
+
+
+
+
+
+
+
 
     private fun startPandaAnimation() {
         if (pandaAnimator?.isRunning == true) return
@@ -228,27 +320,6 @@ class PeruMapFragment : Fragment() {
 
         binding.progressText.text = "Vamos ${state.visitedCount} de ${state.totalCount} departamentos"
         renderSelection(state)
-    }
-
-    private fun renderSelection(state: PeruMapUiState) {
-        val region = state.selectedRegion
-        if (region == null) {
-            binding.regionInfoCard.visibility = View.GONE
-            showLocateButton()
-            return
-        }
-        binding.regionInfoCard.visibility = View.VISIBLE
-        hideLocateButton()
-
-        val isLima = state.isLimaGroup(region.id)
-        binding.regionNameText.text = if (isLima) "Lima" else region.title
-        binding.regionStatusText.text = when {
-            isLima -> "Siempre visitado 💛"
-            region.id in state.visitedIds -> "Visitado"
-            else -> "Aún no visitado"
-        }
-
-        binding.regionBackgroundImage.setImageResource(getRegionBackgroundRes(region.id))
     }
 
     private fun getRegionBackgroundRes(regionId: String): Int {

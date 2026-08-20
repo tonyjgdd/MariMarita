@@ -173,6 +173,54 @@ class PeruMapView @JvmOverloads constructor(
         onZoomStateChanged?.invoke(false) // Notifica que volvió al zoom mínimo
     }
 
+    // ---- Foco de departamento seleccionado (independiente del pan/zoom del usuario) ----
+    private var focusTranslateY = 0f
+    private var focusAnimator: ValueAnimator? = null
+
+    /**
+     * Si el departamento seleccionado queda tapado por el popup, sube el mapa
+     * lo MÍNIMO necesario para destaparlo (no lo centra ni lo mueve de más).
+     * Si el departamento ya es visible por completo, no mueve nada.
+     *
+     * @param regionId departamento a revisar/destapar
+     * @param reservedBottomPx alto en píxeles reales de pantalla que ocupa el popup (más su margen)
+     * @param extraPadding aire extra entre el departamento y el borde del popup
+     */
+    fun focusRegionAboveBottom(regionId: String, reservedBottomPx: Float, extraPadding: Float = 24f) {
+        val dr = drawableRegions.firstOrNull { it.region.id == regionId } ?: return
+
+        // Punto más bajo del departamento (peor caso de tapado), en su posición SIN offset de foco.
+        val bottomPoint = floatArrayOf(dr.bounds.centerX(), dr.bounds.bottom)
+        totalMatrix.mapPoints(bottomPoint)
+        val regionBottomOnScreen = bottomPoint[1]
+
+        val visibleLimit = height - reservedBottomPx - extraPadding
+        val overlap = regionBottomOnScreen - visibleLimit
+
+        // Si no se tapa (overlap <= 0), no lo movemos nada.
+        val targetOffset = if (overlap > 0f) -overlap else 0f
+
+        animateFocusTo(targetOffset)
+    }
+
+    /** Revierte el offset de foco (el mapa vuelve a su posición normal). */
+    fun clearRegionFocus() {
+        animateFocusTo(0f)
+    }
+
+    private fun animateFocusTo(target: Float) {
+        focusAnimator?.cancel()
+        focusAnimator = ValueAnimator.ofFloat(focusTranslateY, target).apply {
+            duration = 500 // despacio, para que se note el movimiento sin ser brusco
+            interpolator = DecelerateInterpolator()
+            addUpdateListener {
+                focusTranslateY = it.animatedValue as Float
+                invalidate()
+            }
+            start()
+        }
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         updateBaseMatrix(w, h)
@@ -237,7 +285,7 @@ class PeruMapView @JvmOverloads constructor(
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-            val pts = floatArrayOf(e.x, e.y)
+            val pts = floatArrayOf(e.x, e.y - focusTranslateY) // resta el offset de foco antes de mapear
             inverseTotalMatrix.mapPoints(pts)
             val hit = findRegionAt(pts[0], pts[1])
             if (hit != null) {
@@ -265,6 +313,7 @@ class PeruMapView @JvmOverloads constructor(
         super.onDraw(canvas)
 
         canvas.save()
+        canvas.translate(0f, focusTranslateY) // desplaza todo el dibujo por el foco animado
         canvas.concat(totalMatrix)
 
         drawableRegions.forEach { dr ->
@@ -338,6 +387,7 @@ class PeruMapView @JvmOverloads constructor(
             if (renderedWidth > textWidth + labelPaddingPx && renderedHeight > textHeight + labelPaddingPx) {
                 val center = floatArrayOf(dr.bounds.centerX(), dr.bounds.centerY())
                 totalMatrix.mapPoints(center)
+                center[1] += focusTranslateY // aplica el mismo offset de foco a las etiquetas
                 val baselineY = center[1] - (labelFillPaint.descent() + labelFillPaint.ascent()) / 2
                 canvas.drawText(text, center[0], baselineY, labelFillPaint)
             }
