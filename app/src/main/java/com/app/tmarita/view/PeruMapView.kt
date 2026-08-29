@@ -48,7 +48,7 @@ class PeruMapView @JvmOverloads constructor(
     private var zoom = 1f
     private val minZoom = 1f
     private val maxZoom = 5f
-
+    private val minVisiblePx = 90f
 
 
     // ---- Colores base ----
@@ -270,18 +270,26 @@ class PeruMapView @JvmOverloads constructor(
         val viewH = height.toFloat()
 
         val dx = when {
+            // Mapa más chico que la pantalla en este eje: lo centramos, no debe "flotar".
             mappedViewportRectF.width() <= viewW ->
                 (viewW - mappedViewportRectF.width()) / 2f - mappedViewportRectF.left
-            mappedViewportRectF.left > 0f -> -mappedViewportRectF.left
-            mappedViewportRectF.right < viewW -> viewW - mappedViewportRectF.right
+            // Se está yendo de más por la izquierda: dejamos que salga, pero solo
+            // hasta que quede minVisiblePx de su borde derecho visible en pantalla.
+            mappedViewportRectF.right < minVisiblePx ->
+                minVisiblePx - mappedViewportRectF.right
+            // Se está yendo de más por la derecha: mismo criterio, del otro lado.
+            mappedViewportRectF.left > viewW - minVisiblePx ->
+                (viewW - minVisiblePx) - mappedViewportRectF.left
             else -> 0f
         }
 
         val dy = when {
             mappedViewportRectF.height() <= viewH ->
                 (viewH - mappedViewportRectF.height()) / 2f - mappedViewportRectF.top
-            mappedViewportRectF.top > 0f -> -mappedViewportRectF.top
-            mappedViewportRectF.bottom < viewH -> viewH - mappedViewportRectF.bottom
+            mappedViewportRectF.bottom < minVisiblePx ->
+                minVisiblePx - mappedViewportRectF.bottom
+            mappedViewportRectF.top > viewH - minVisiblePx ->
+                (viewH - minVisiblePx) - mappedViewportRectF.top
             else -> 0f
         }
 
@@ -290,6 +298,8 @@ class PeruMapView @JvmOverloads constructor(
             recomputeTotalMatrix()
         }
     }
+
+
 
     private fun currentScale(): Float {
         totalMatrix.getValues(matrixValues)

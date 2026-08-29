@@ -154,7 +154,6 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavBar"/>
 
     <!-- ================= 6. TARJETA FLOTANTE DE REGIÓN (con imagen de fondo) ================= -->
-    <!-- ================= 6. TARJETA DE REGIÓN ================= -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/regionInfoCard"
         android:layout_width="0dp"
@@ -165,7 +164,8 @@
         android:visibility="gone"
         app:cardCornerRadius="20dp"
         app:cardElevation="14dp"
-        app:strokeWidth="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#33FFFFFF"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -174,9 +174,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- =========================================
-                 FOTO DEL DEPARTAMENTO
-                 ========================================= -->
+            <!-- FOTO DEL DEPARTAMENTO -->
             <ImageView
                 android:id="@+id/regionBackgroundImage"
                 android:layout_width="match_parent"
@@ -184,17 +182,22 @@
                 android:scaleType="centerCrop"
                 android:contentDescription="@null" />
 
-            <!-- =========================================
-                 DEGRADADO PARA HACER LEGIBLE EL TEXTO
-                 ========================================= -->
+            <!-- SCRIM -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_region_scrim" />
 
-            <!-- =========================================
-                 CONTENIDO
-                 ========================================= -->
+            <!-- HANDLE (barrita superior tipo bottom sheet) -->
+            <View
+                android:layout_width="36dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal|top"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_handle"
+                android:alpha="0.6" />
+
+            <!-- CONTENIDO -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -202,17 +205,29 @@
                 android:gravity="bottom"
                 android:padding="18dp">
 
-                <!-- Espacio superior -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1" />
+
+                <!-- OVERLINE -->
+                <TextView
+                    android:id="@+id/regionOverline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DEPARTAMENTO"
+                    android:textColor="@android:color/white"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.15"
+                    android:alpha="0.75"
+                    android:textStyle="bold" />
 
                 <!-- NOMBRE DEL DEPARTAMENTO -->
                 <TextView
                     android:id="@+id/regionNameText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:text="AMAZONAS"
                     android:textColor="@android:color/white"
                     android:textSize="22sp"
@@ -223,14 +238,12 @@
                     android:shadowDy="2"
                     android:shadowRadius="5" />
 
-                <!-- Pequeña línea decorativa -->
                 <View
                     android:layout_width="48dp"
                     android:layout_height="3dp"
                     android:layout_marginTop="7dp"
                     android:background="@drawable/bg_pink_line" />
 
-                <!-- LUGAR REPRESENTATIVO -->
                 <TextView
                     android:id="@+id/regionPlaceText"
                     android:layout_width="wrap_content"
@@ -249,22 +262,34 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="14dp"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <!-- Estado -->
-                    <TextView
-                        android:id="@+id/regionStatusText"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="●  Aún no visitado"
-                        android:textColor="@android:color/white"
-                        android:textSize="12sp"
-                        android:alpha="0.9" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <!-- BOTÓN -->
+                        <View
+                            android:id="@+id/regionStatusDot"
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/dot_status_pending" />
+
+                        <TextView
+                            android:id="@+id/regionStatusText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Aún no visitado"
+                            android:textColor="@android:color/white"
+                            android:textSize="12sp"
+                            android:alpha="0.9" />
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnOpenRegion"
                         android:layout_width="wrap_content"
@@ -276,8 +301,14 @@
                         android:textColor="@android:color/white"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
+                        android:letterSpacing="0.05"
+                        app:icon="@drawable/ic_arrow_forward"
+                        app:iconGravity="end"
+                        app:iconSize="16dp"
+                        app:iconTint="@android:color/white"
                         app:cornerRadius="21dp"
-                        app:backgroundTint="@color/splash_pink" />
+                        app:backgroundTint="@color/splash_pink"
+                        app:elevation="4dp" />
 
                 </LinearLayout>
 
@@ -286,6 +317,7 @@
         </FrameLayout>
 
     </com.google.android.material.card.MaterialCardView>
+
 
 
     <!-- ================= 7. BARRA INFERIOR FLOTANTE ================= -->

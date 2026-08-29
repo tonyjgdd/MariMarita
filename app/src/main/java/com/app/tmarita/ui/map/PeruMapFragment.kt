@@ -73,18 +73,23 @@ class PeruMapFragment : Fragment() {
 
         binding.regionPlaceText.text = getRegionPlaceName(region.id)
 
-
+        val isVisited = isLima || region.id in state.visitedIds
         binding.regionStatusText.text = when {
             isLima -> "Siempre visitado 💛"
-            region.id in state.visitedIds -> "Visitado"
+            isVisited -> "Visitado"
             else -> "Aún no visitado"
         }
+        binding.regionStatusDot.setBackgroundResource(
+            if (isVisited) R.drawable.dot_status_visited else R.drawable.dot_status_pending
+        )
+
         binding.regionBackgroundImage.setImageResource(getRegionBackgroundRes(region.id))
 
         if (isNewSelection) {
             showRegionPopup(region.id)
         }
     }
+
 
     private fun showRegionPopup(regionId: String) {
         hideLocateButton()
@@ -94,19 +99,24 @@ class PeruMapFragment : Fragment() {
         card.animate().cancel()
         card.visibility = View.VISIBLE
         card.alpha = 0f
-        card.translationY = dpToPx(popupHeightDp) // arranca "escondido" abajo, como si estuviera tras la nav bar
+        card.translationY = dpToPx(popupHeightDp)
+        card.scaleX = 0.96f
+        card.scaleY = 0.96f
 
         card.animate()
             .translationY(0f)
             .alpha(1f)
-            .setDuration(650)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(500)
             .setInterpolator(DecelerateInterpolator())
             .start()
 
-        // Alto del popup (160dp fijo en XML) + su margen inferior (20dp)
         val reservedBottomPx = dpToPx(popupHeightDp) + dpToPx(popupMarginBottomDp)
         binding.peruMapView.focusRegionAboveBottom(regionId, reservedBottomPx)
     }
+
+
 
     private fun getRegionPlaceName(regionId: String): String {
         return when (regionId.lowercase()) {
@@ -152,6 +162,8 @@ class PeruMapFragment : Fragment() {
                 card.visibility = View.GONE
                 card.translationY = 0f
                 card.alpha = 1f
+                card.scaleX = 1f
+                card.scaleY = 1f
             }
             .start()
 
