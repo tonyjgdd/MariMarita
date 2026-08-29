@@ -154,6 +154,7 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavBar"/>
 
     <!-- ================= 6. TARJETA FLOTANTE DE REGIÓN (con imagen de fondo) ================= -->
+    <!-- ================= 6. TARJETA DE REGIÓN ================= -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/regionInfoCard"
         android:layout_width="0dp"
@@ -162,8 +163,9 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:visibility="gone"
-        app:cardCornerRadius="18dp"
+        app:cardCornerRadius="20dp"
         app:cardElevation="14dp"
+        app:strokeWidth="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -172,78 +174,118 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Imagen de fondo, distinta por cada departamento -->
+            <!-- =========================================
+                 FOTO DEL DEPARTAMENTO
+                 ========================================= -->
             <ImageView
                 android:id="@+id/regionBackgroundImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:contentDescription="@null"
-                tools:src="@tools:sample/backgrounds/scenic" />
+                android:contentDescription="@null" />
 
-            <!-- Scrim: oscurece la parte donde va el texto, para que siempre se lea bien -->
+            <!-- =========================================
+                 DEGRADADO PARA HACER LEGIBLE EL TEXTO
+                 ========================================= -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_region_scrim" />
 
-            <!-- Contenido: texto blanco + botón, encima de la imagen -->
+            <!-- =========================================
+                 CONTENIDO
+                 ========================================= -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp">
+                android:orientation="vertical"
+                android:gravity="bottom"
+                android:padding="18dp">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                <!-- Espacio superior -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
-                    <TextView
-                        android:id="@+id/regionNameText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="serif"
-                        android:text="Cusco"
-                        android:textColor="@color/cream"
-                        android:textSize="19sp"
-                        android:textStyle="bold"
-                        android:shadowColor="#66000000"
-                        android:shadowDx="0"
-                        android:shadowDy="1"
-                        android:shadowRadius="3"/>
-
-                    <TextView
-                        android:id="@+id/regionStatusText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Aún no visitado"
-                        android:textColor="@color/cream"
-                        android:alpha="0.9"
-                        android:textSize="12sp"
-                        android:shadowColor="#66000000"
-                        android:shadowDx="0"
-                        android:shadowDy="1"
-                        android:shadowRadius="3"/>
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnOpenRegion"
-                    style="@style/Widget.MaterialComponents.Button"
+                <!-- NOMBRE DEL DEPARTAMENTO -->
+                <TextView
+                    android:id="@+id/regionNameText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Abrir"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="@color/accent" />
+                    android:text="AMAZONAS"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.03"
+                    android:shadowColor="#99000000"
+                    android:shadowDx="0"
+                    android:shadowDy="2"
+                    android:shadowRadius="5" />
+
+                <!-- Pequeña línea decorativa -->
+                <View
+                    android:layout_width="48dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="7dp"
+                    android:background="@drawable/bg_pink_line" />
+
+                <!-- LUGAR REPRESENTATIVO -->
+                <TextView
+                    android:id="@+id/regionPlaceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Catarata de Gocta"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:alpha="0.95"
+                    android:shadowColor="#99000000"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="3" />
+
+                <!-- ESTADO + BOTÓN -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Estado -->
+                    <TextView
+                        android:id="@+id/regionStatusText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="●  Aún no visitado"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp"
+                        android:alpha="0.9" />
+
+                    <!-- BOTÓN -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnOpenRegion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:minWidth="82dp"
+                        android:text="ABRIR"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="21dp"
+                        app:backgroundTint="@color/splash_pink" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
         </FrameLayout>
-    </com.google.android.material.card.MaterialCardView>
 
+    </com.google.android.material.card.MaterialCardView>
 
 
     <!-- ================= 7. BARRA INFERIOR FLOTANTE ================= -->

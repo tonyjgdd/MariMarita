@@ -70,6 +70,10 @@ class PeruMapFragment : Fragment() {
 
         val isLima = state.isLimaGroup(region.id)
         binding.regionNameText.text = if (isLima) "Lima" else region.title
+
+        binding.regionPlaceText.text = getRegionPlaceName(region.id)
+
+
         binding.regionStatusText.text = when {
             isLima -> "Siempre visitado 💛"
             region.id in state.visitedIds -> "Visitado"
@@ -102,6 +106,38 @@ class PeruMapFragment : Fragment() {
         // Alto del popup (160dp fijo en XML) + su margen inferior (20dp)
         val reservedBottomPx = dpToPx(popupHeightDp) + dpToPx(popupMarginBottomDp)
         binding.peruMapView.focusRegionAboveBottom(regionId, reservedBottomPx)
+    }
+
+    private fun getRegionPlaceName(regionId: String): String {
+        return when (regionId.lowercase()) {
+            "pe-ama" -> "📍 Catarata de Gocta"
+            "pe-anc" -> "📍 Laguna 69"
+            "pe-apu" -> "📍 Cañón del Apurímac"
+            "pe-are" -> "📍 Cañón del Colca"
+            "pe-aya" -> "📍 Quinua"
+            "pe-caj" -> "📍 Cumbemayo"
+            "pe-cal" -> "📍 La Punta"
+            "pe-cus" -> "📍 Machu Picchu"
+            "pe-huc" -> "📍 Templo de las Manos Cruzadas"
+            "pe-huv" -> "📍 Bosque de Piedras de Sachapite"
+            "pe-ica" -> "📍 Huacachina"
+            "pe-jun" -> "📍 Lago Chinchaycocha"
+            "pe-lal" -> "📍 Chan Chan"
+            "pe-lam" -> "📍 Museo Tumbas Reales"
+            "pe-lim" -> "📍 Centro Histórico de Lima"
+            "pe-lma" -> "📍 Miraflores y Costa Verde"
+            "pe-lor" -> "📍 Río Amazonas"
+            "pe-mdd" -> "📍 Reserva Tambopata"
+            "pe-moq" -> "📍 Cerro Baúl"
+            "pe-pas" -> "📍 Bosque de Piedras de Huayllay"
+            "pe-piu" -> "📍 Máncora"
+            "pe-pun" -> "📍 Lago Titicaca"
+            "pe-sam" -> "📍 Catarata de Ahuashiyacu"
+            "pe-tac" -> "📍 Miculla"
+            "pe-tum" -> "📍 Punta Sal"
+            "pe-uca" -> "📍 Laguna Yarinacocha"
+            else -> "📍 Un lugar por descubrir"
+        }
     }
 
     private fun hideRegionPopup() {
@@ -323,8 +359,10 @@ class PeruMapFragment : Fragment() {
     }
 
     private fun getRegionBackgroundRes(regionId: String): Int {
+        val sanitizedId = regionId.lowercase().replace("-", "_")
+
         val resId = resources.getIdentifier(
-            "bg_region_${regionId.lowercase()}",
+            "bg_region_$sanitizedId",
             "drawable",
             requireContext().packageName
         )
