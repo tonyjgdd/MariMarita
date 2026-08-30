@@ -111,14 +111,14 @@
                     android:textSize="16sp"
                     android:textStyle="bold"/>
 
-                <TextView
-                    android:id="@+id/progressPercentText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="33%"
-                    android:textColor="@color/splash_pink"
-                    android:textSize="14sp"
-                    android:textStyle="bold"/>
+<!--                <TextView-->
+<!--                    android:id="@+id/progressPercentText"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="33%"-->
+<!--                    android:textColor="@color/splash_pink"-->
+<!--                    android:textSize="14sp"-->
+<!--                    android:textStyle="bold"/>-->
 
             </LinearLayout>
 
