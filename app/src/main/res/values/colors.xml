@@ -12,5 +12,8 @@
     <color name="accent_track">#F5E3E0</color>     <!-- track de la progress bar en tono rosado -->
     <color name="splash_pink">#FFB6C1</color>
     <color name="rojo">#ecded6</color>
+    <color name="ink_faint">#B0B0B0</color>
+    <color name="splash_pink_soft">#FFE8EC</color>
+    <color name="divider">#F0F0F0</color>
 
 </resources>

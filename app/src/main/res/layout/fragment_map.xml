@@ -161,7 +161,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:cardCornerRadius="20dp"
         app:cardElevation="14dp"
         app:strokeWidth="1dp"
@@ -293,7 +293,8 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnOpenRegion"
                         android:layout_width="wrap_content"
-                        android:layout_height="42dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="12dp"
                         android:minWidth="82dp"
                         android:text="ABRIR"
                         android:textSize="12sp"

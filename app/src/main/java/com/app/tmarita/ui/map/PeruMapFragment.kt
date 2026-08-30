@@ -382,17 +382,21 @@ class PeruMapFragment : Fragment() {
     }
 
     private fun hideLocateButton() {
-        if (binding.btnLocateMe.visibility == View.VISIBLE) {
-            TransitionManager.beginDelayedTransition(binding.btnLocateMe.parent as ViewGroup)
-            binding.btnLocateMe.visibility = View.GONE
-        }
+//        if (binding.btnLocateMe.visibility == View.VISIBLE) {
+//            TransitionManager.beginDelayedTransition(binding.btnLocateMe.parent as ViewGroup)
+//            binding.btnLocateMe.visibility = View.GONE
+//        }
+        binding.btnLocateMe.visibility = View.GONE
+
     }
 
     private fun showLocateButton() {
-        if (binding.btnLocateMe.visibility != View.VISIBLE) {
-            TransitionManager.beginDelayedTransition(binding.btnLocateMe.parent as ViewGroup)
-            binding.btnLocateMe.visibility = View.VISIBLE
-        }
+//        if (binding.btnLocateMe.visibility != View.VISIBLE) {
+//            TransitionManager.beginDelayedTransition(binding.btnLocateMe.parent as ViewGroup)
+//            binding.btnLocateMe.visibility = View.VISIBLE
+//        }
+        binding.btnLocateMe.visibility = View.VISIBLE
+
     }
 
     private fun hideCardProgress() {

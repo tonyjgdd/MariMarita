@@ -1,6 +1,7 @@
 package com.app.tmarita.data
 
 import com.app.tmarita.model.PeruRegion
+import com.app.tmarita.model.Trip
 import com.app.tmarita.model.VisitedPlace
 import kotlinx.coroutines.flow.Flow
 
@@ -14,13 +15,11 @@ data class PeruMapSnapshot(
 interface PeruMapRepository {
     fun observeMap(): Flow<PeruMapSnapshot>
 
-    /** Para la pantalla de detalle: todo lo guardado de un departamento (o null si nunca se guardó nada). */
     fun observeVisit(regionId: String): Flow<VisitedPlace?>
 
     suspend fun markVisited(regionId: String, note: String? = null, photoUri: String? = null)
     suspend fun unmark(regionId: String)
 
-    /** Guarda el formulario completo del detalle de un departamento. */
     suspend fun saveVisitDetails(
         regionId: String,
         visited: Boolean,
@@ -29,4 +28,18 @@ interface PeruMapRepository {
         driveLink: String?,
         note: String?
     )
+
+    // 👇 Nuevo: manejo de viajes (varios por departamento)
+    fun observeTrips(regionId: String): Flow<List<Trip>>
+
+    suspend fun addTrip(
+        regionId: String,
+        place: String?,
+        visitDateMillis: Long?,
+        driveLink: String?,
+        notes: String?,
+        photoPath: String?   // 👈 nuevo
+    )
+
+    suspend fun deleteTrip(tripId: Long, regionId: String)
 }

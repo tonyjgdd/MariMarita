@@ -13,13 +13,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.tmarita.databinding.FragmentRegionDetailBinding
-import com.google.android.material.datepicker.MaterialDatePicker
+import com.app.tmarita.ui.detail.TripAdapter
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @AndroidEntryPoint
 class RegionDetailFragment : Fragment() {
@@ -30,9 +29,7 @@ class RegionDetailFragment : Fragment() {
     private val args: RegionDetailFragmentArgs by navArgs()
     private val viewModel: RegionDetailViewModel by viewModels()
 
-    private val dateFormatter = SimpleDateFormat("dd 'de' MMMM 'de' yyyy", Locale("es", "PE"))
-    private var selectedDateMillis: Long? = null
-    private var initialized = false
+    private lateinit var adapter: TripAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -46,63 +43,64 @@ class RegionDetailFragment : Fragment() {
 
         binding.tvRegionTitle.text = args.regionTitle
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        binding.etFecha.setOnClickListener { showDatePicker() }
 
-        binding.btnAbrirDrive.setOnClickListener {
-            val link = binding.etDriveLink.text?.toString().orEmpty()
-            if (link.isNotBlank()) {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
-            } else {
-                Snackbar.make(binding.root, "Aún no hay un enlace guardado", Snackbar.LENGTH_SHORT).show()
+        adapter = TripAdapter(
+            onOpenDrive = { trip ->
+                val link = trip.driveLink
+                if (!link.isNullOrBlank()) {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                }
+            },
+            onDelete = { trip ->
+                viewModel.deleteTrip(trip.id)
+                SuccessDialogFragment.show(parentFragmentManager, "Viaje eliminado 😞")
             }
+        )
+        binding.rvTrips.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvTrips.adapter = adapter
+
+        binding.fabAddTrip.setOnClickListener {
+            AddTripBottomSheetFragment.newInstance()
+                .show(childFragmentManager, "add_trip")
         }
 
-        binding.btnGuardar.setOnClickListener {
-            viewModel.save(
-                visited = binding.switchVisitado.isChecked,
-                place = binding.etLugar.text?.toString(),
-                driveLink = binding.etDriveLink.text?.toString(),
-                notes = binding.etNotas.text?.toString(),
-                visitDateMillis = selectedDateMillis
+        childFragmentManager.setFragmentResultListener(
+            AddTripBottomSheetFragment.REQUEST_KEY, viewLifecycleOwner
+        ) { _, bundle ->
+            viewModel.addTrip(
+                place = bundle.getString(AddTripBottomSheetFragment.KEY_PLACE),
+                visitDateMillis = bundle.getLong(AddTripBottomSheetFragment.KEY_DATE, -1L)
+                    .takeIf { it != -1L },
+                driveLink = bundle.getString(AddTripBottomSheetFragment.KEY_DRIVE),
+                notes = bundle.getString(AddTripBottomSheetFragment.KEY_NOTES),
+                photoPath = bundle.getString(AddTripBottomSheetFragment.KEY_PHOTO)   // 👈 nuevo
             )
-            Snackbar.make(binding.root, "Guardado 💛", Snackbar.LENGTH_SHORT).show()
+            SuccessDialogFragment.show(parentFragmentManager, "¡Viaje guardado! 🩷")
         }
 
-        observeState()
+        observeTrips()
     }
 
-    private fun showDatePicker() {
-        val picker = MaterialDatePicker.Builder.datePicker()
-            .setTitleText("Fecha del viaje")
-            .setSelection(selectedDateMillis ?: MaterialDatePicker.todayInUtcMilliseconds())
-            .build()
-        picker.addOnPositiveButtonClickListener { millis ->
-            selectedDateMillis = millis
-            binding.etFecha.setText(dateFormatter.format(millis))
-        }
-        picker.show(parentFragmentManager, "date_picker")
-    }
-
-    /** Solo precarga los campos UNA vez al entrar; después el usuario manda hasta tocar Guardar. */
-    private fun observeState() {
+    private fun observeTrips() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    if (!initialized) {
-                        binding.switchVisitado.isChecked = state.visited
-                        binding.etLugar.setText(state.place)
-                        binding.etDriveLink.setText(state.driveLink)
-                        binding.etNotas.setText(state.notes)
-                        selectedDateMillis = state.visitDateMillis
-                        binding.etFecha.setText(
-                            state.visitDateMillis?.let { dateFormatter.format(it) } ?: ""
-                        )
-                        initialized = true
+                viewModel.trips.collect { trips ->
+                    adapter.submitList(trips)
+                    binding.emptyState.visibility = if (trips.isEmpty()) View.VISIBLE else View.GONE
+                    binding.rvTrips.visibility = if (trips.isEmpty()) View.GONE else View.VISIBLE
+
+                    // 👇 nuevo: actualiza el contador dinámicamente
+                    binding.tvTripCount.text = when (trips.size) {
+                        0 -> "Sin viajes registrados"
+                        1 -> "1 viaje registrado"
+                        else -> "${trips.size} viajes registrados"
                     }
                 }
             }
         }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

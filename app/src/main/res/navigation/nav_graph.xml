@@ -10,7 +10,11 @@
         android:label="Mapa">
         <action
             android:id="@+id/action_map_to_regionDetail"
-            app:destination="@id/regionDetailFragment" />
+            app:destination="@id/regionDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment

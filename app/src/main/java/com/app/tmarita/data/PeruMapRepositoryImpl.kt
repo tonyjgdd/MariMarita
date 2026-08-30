@@ -1,8 +1,11 @@
 package com.app.tmarita.data
 
+import com.app.tmarita.data.local.TripDao
+import com.app.tmarita.data.local.TripEntity
 import com.app.tmarita.data.local.VisitedPlaceDao
 import com.app.tmarita.data.local.VisitedPlaceEntity
 import com.app.tmarita.data.source.PeruRegionsAssetSource
+import com.app.tmarita.model.Trip
 import com.app.tmarita.model.VisitedPlace
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -12,7 +15,8 @@ import javax.inject.Singleton
 @Singleton
 class PeruMapRepositoryImpl @Inject constructor(
     private val assetSource: PeruRegionsAssetSource,
-    private val dao: VisitedPlaceDao
+    private val dao: VisitedPlaceDao,
+    private val tripDao: TripDao
 ) : PeruMapRepository {
 
     override fun observeMap(): Flow<PeruMapSnapshot> {
@@ -66,6 +70,46 @@ class PeruMapRepositoryImpl @Inject constructor(
         )
     }
 
+    // ---------- Viajes ----------
+
+    override fun observeTrips(regionId: String): Flow<List<Trip>> =
+        tripDao.observeByRegionId(regionId).map { list -> list.map { it.toDomain() } }
+
+    override suspend fun addTrip(
+        regionId: String,
+        place: String?,
+        visitDateMillis: Long?,
+        driveLink: String?,
+        notes: String?,
+        photoPath: String?   // 👈 nuevo
+    ) {
+        tripDao.insert(
+            TripEntity(
+                regionId = regionId,
+                place = place,
+                visitDateMillis = visitDateMillis,
+                driveLink = driveLink,
+                notes = notes,
+                photoPath = photoPath   // 👈 nuevo
+            )
+        )
+        // Al agregar un viaje, el departamento queda visitado automáticamente.
+        dao.upsert(
+            VisitedPlaceEntity(
+                regionId = regionId,
+                visited = true,
+                visitedAt = visitDateMillis ?: System.currentTimeMillis()
+            )
+        )
+    }
+
+    override suspend fun deleteTrip(tripId: Long, regionId: String) {
+        tripDao.deleteById(tripId)
+        if (tripDao.countByRegionId(regionId) == 0) {
+            dao.deleteByRegionId(regionId)
+        }
+    }
+
     private fun VisitedPlaceEntity.toDomain() = VisitedPlace(
         regionId = regionId,
         visited = visited,
@@ -74,5 +118,15 @@ class PeruMapRepositoryImpl @Inject constructor(
         driveLink = driveLink,
         note = note,
         photoUri = photoUri
+    )
+
+    private fun TripEntity.toDomain() = Trip(
+        id = id,
+        regionId = regionId,
+        place = place,
+        visitDateMillis = visitDateMillis,
+        driveLink = driveLink,
+        notes = notes,
+        photoPath = photoPath   // 👈 nuevo
     )
 }

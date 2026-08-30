@@ -3,4 +3,19 @@
     <string name="footer_text">Designed &amp; Developed by TonyG </string>
     <string name="subtitle">Descubriendo el Perú <b>juntos</b> </string>
 
+
+    <string name="trip_date_picker_title">Fecha del viaje</string>
+    <string name="action_accept">Aceptar</string>
+
+    <string name="error_place_title">Falta el lugar</string>
+    <string name="error_place_subtitle">Indica el lugar o provincia que visitaste.</string>
+
+    <string name="error_date_title">Falta la fecha</string>
+    <string name="error_date_subtitle">Selecciona la fecha del viaje.</string>
+
+    <string name="error_drive_empty_title">Falta el enlace de Drive</string>
+    <string name="error_drive_empty_subtitle">Agrega el enlace de Drive con las evidencias del viaje.</string>
+
+    <string name="error_drive_invalid_title">Enlace no válido</string>
+    <string name="error_drive_invalid_subtitle">El enlace debe pertenecer a Google Drive.</string>
 </resources>

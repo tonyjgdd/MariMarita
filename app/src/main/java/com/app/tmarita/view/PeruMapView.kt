@@ -214,7 +214,7 @@ class PeruMapView @JvmOverloads constructor(
     private fun animateFocusTo(target: Float) {
         focusAnimator?.cancel()
         focusAnimator = ValueAnimator.ofFloat(focusTranslateY, target).apply {
-            duration = 750 // más lento, para que el movimiento se sienta suave
+            duration = 400 // más lento, para que el movimiento se sienta suave
             interpolator = android.view.animation.AccelerateDecelerateInterpolator() // acelera y frena de a poco, sin golpe seco
             addUpdateListener {
                 focusTranslateY = it.animatedValue as Float

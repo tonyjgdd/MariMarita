@@ -4,22 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.tmarita.data.PeruMapRepository
+import com.app.tmarita.model.Trip
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class RegionDetailUiState(
-    val regionId: String = "",
-    val visited: Boolean = false,
-    val place: String? = null,
-    val visitDateMillis: Long? = null,
-    val driveLink: String? = null,
-    val notes: String? = null
-)
 
 @HiltViewModel
 class RegionDetailViewModel @Inject constructor(
@@ -27,31 +18,31 @@ class RegionDetailViewModel @Inject constructor(
     private val repository: PeruMapRepository
 ) : ViewModel() {
 
-    private val regionId: String = checkNotNull(savedStateHandle["regionId"])
+    val regionId: String = checkNotNull(savedStateHandle["regionId"])
 
-    val uiState: StateFlow<RegionDetailUiState> = repository.observeVisit(regionId)
-        .map { visit ->
-            RegionDetailUiState(
-                regionId = regionId,
-                visited = visit?.visited ?: false,
-                place = visit?.place,
-                visitDateMillis = visit?.visitedAt,
-                driveLink = visit?.driveLink,
-                notes = visit?.note
-            )
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RegionDetailUiState(regionId = regionId))
+    val trips: StateFlow<List<Trip>> = repository.observeTrips(regionId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun save(visited: Boolean, place: String?, driveLink: String?, notes: String?, visitDateMillis: Long?) {
+    fun addTrip(
+        place: String?,
+        visitDateMillis: Long?,
+        driveLink: String?,
+        notes: String?,
+        photoPath: String?   // 👈 nuevo
+    ) {
         viewModelScope.launch {
-            repository.saveVisitDetails(
+            repository.addTrip(
                 regionId = regionId,
-                visited = visited,
                 place = place?.ifBlank { null },
                 visitDateMillis = visitDateMillis,
                 driveLink = driveLink?.ifBlank { null },
-                note = notes?.ifBlank { null }
+                notes = notes?.ifBlank { null },
+                photoPath = photoPath   // 👈 nuevo
             )
         }
+    }
+
+    fun deleteTrip(tripId: Long) {
+        viewModelScope.launch { repository.deleteTrip(tripId, regionId) }
     }
 }
